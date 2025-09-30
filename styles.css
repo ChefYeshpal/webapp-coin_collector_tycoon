@@ -1,0 +1,42 @@
+body {
+    background: #f2e9e1;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#game-container {
+    background: #fffbe6;
+    padding: 28px 42px;
+    border-radius: 15px;
+    box-shadow: 0 3px 14px rgba(0,0,0,0.13);
+    text-align: center;
+    width: 340px;
+}
+
+#coin-btn {
+    font-size: 2rem;
+      padding: 17px 33px;
+  background: #ffe066;
+  border: none;
+  border-radius: 22px;
+  cursor: pointer;
+  margin-bottom: 25px;
+  transition: background 0.18s;
+}
+#coin-btn:active {
+  background: #ffd700;
+}
+
+#coin-count {
+  font-size: 1.36rem;
+  font-weight: 600;
+  color: #b08d57;
+}
+
+#upgrades {
+  margin-top: 30px;
+}
