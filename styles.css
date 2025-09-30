@@ -1,42 +1,63 @@
 body {
-    background: #f2e9e1;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    margin: 0;
+  background: linear-gradient(135deg, #75e6a2 0%, #417d5b 100%);
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
 }
 
 #game-container {
-    background: #fffbe6;
-    padding: 28px 42px;
-    border-radius: 15px;
-    box-shadow: 0 3px 14px rgba(0,0,0,0.13);
-    text-align: center;
-    width: 340px;
+  background: #eafaf1;
+  padding: 28px 42px;
+  border-radius: 15px;
+  box-shadow: 0 3px 14px rgba(32, 75, 56, 0.16);
+  text-align: center;
+  width: 340px;
 }
 
 #coin-btn {
-    font-size: 2rem;
-      padding: 17px 33px;
-  background: #ffe066;
+  font-size: 2rem;
+  padding: 17px 33px;
+  background: #63c57d;
   border: none;
   border-radius: 22px;
   cursor: pointer;
   margin-bottom: 25px;
+  color: #174c3c;
   transition: background 0.18s;
 }
 #coin-btn:active {
-  background: #ffd700;
+  background: #43a047;
 }
 
 #coin-count {
   font-size: 1.36rem;
   font-weight: 600;
-  color: #b08d57;
+  color: #236c40;
 }
 
 #upgrades {
   margin-top: 30px;
+}
+
+#auto-upgrade-btn {
+  font-size: 1rem;
+  padding: 9px 16px;
+  background: #bffacf;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #276745;
+  margin-bottom: 7px;
+  transition: background 0.18s;
+}
+#auto-upgrade-btn:active {
+  background: #97e6b3;
+}
+
+#auto-info {
+  font-size: 1rem;
+  color: #17693c;
 }
