@@ -21,9 +21,18 @@
             
             <!-- Main Coin Area -->
             <div id="coin-section">
+                <!-- Cooldown Progress Bar -->
+                <div id="cooldown-container">
+                    <div id="cooldown-bar">
+                        <div id="cooldown-fill"></div>
+                    </div>
+                </div>
+                
+                <!-- Coin Count Display -->
                 <div id="coin-display">
                     <p id="coin-count">💰 0 Coins</p>
                 </div>
+                <!-- Clickable Coin -->
                 <div id="coin-container">
                     <button id="coin-btn">
                         <div class="coin">
@@ -33,6 +42,8 @@
                         </div>
                     </button>
                 </div>
+                
+                <!-- Instructions and Auto Info -->
                 <p id="click-instruction">Click to collect coins!</p>
                 <p id="auto-info">Auto: 0 coins/sec</p>
             </div>
@@ -41,11 +52,12 @@
             <div id="upgrades-section">
                 <h2>Upgrades</h2>
                 <div id="upgrade-list">
+                    <!-- Auto Collector Upgrade -->
                     <div class="upgrade-item">
                         <div class="upgrade-info">
                             <h3>Coin Autocollect</h3>
                             <p class="upgrade-description">+2 coins/sec</p>
-                            <p class="upgrade-cost" id="auto-cost">Cost: 50 coins</p>
+                            <p class="upgrade-cost" id="auto-cost">Cost: 10 coins</p>
                         </div>
                         <button id="auto-upgrade-btn" class="upgrade-btn">Buy</button>
                     </div>
