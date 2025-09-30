@@ -10,14 +10,47 @@
 <body>
     <div id="game-container">
         <h1>Coin Collector Tycoon</h1>
-        <div id="coin-area">
-            <button id="coin-btn">🪙 Collect Coin</button>
-        </div>
-        <p id="coin-count">Coins: 0</p>
-        <div id="upgrades">
-            <h2>Upgrades</h2>
-            <button id="auto-upgrade-btn">Auto Collector (Cost: 50 Coins)</button>
-            <p id="auto-info">Auto coin/s: 0</p>
+        <div id="game-layout">
+            <!-- Progress Section -->
+            <div id="progress-section">
+                <h2>Progress</h2>
+                <div id="progress-content">
+                    <p>Coming Soon...</p>
+                </div>
+            </div>
+            
+            <!-- Main Coin Area -->
+            <div id="coin-section">
+                <div id="coin-display">
+                    <p id="coin-count">💰 0 Coins</p>
+                </div>
+                <div id="coin-container">
+                    <button id="coin-btn">
+                        <div class="coin">
+                            <div class="coin-inner">
+                                <span class="coin-symbol">$</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+                <p id="click-instruction">Click to collect coins!</p>
+                <p id="auto-info">Auto: 0 coins/sec</p>
+            </div>
+            
+            <!-- Upgrades Section -->
+            <div id="upgrades-section">
+                <h2>Upgrades</h2>
+                <div id="upgrade-list">
+                    <div class="upgrade-item">
+                        <div class="upgrade-info">
+                            <h3>Coin Autocollect</h3>
+                            <p class="upgrade-description">+2 coins/sec</p>
+                            <p class="upgrade-cost" id="auto-cost">Cost: 50 coins</p>
+                        </div>
+                        <button id="auto-upgrade-btn" class="upgrade-btn">Buy</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>

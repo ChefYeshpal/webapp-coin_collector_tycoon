@@ -1,63 +1,274 @@
-body {
-  background: linear-gradient(135deg, #75e6a2 0%, #417d5b 100%);
-  font-family: 'Segoe UI', sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(
+    45deg,
+    #1a1a1a 25%,
+    transparent 25%
+  ),
+  linear-gradient(
+    -45deg,
+    #1a1a1a 25%,
+    transparent 25%
+  ),
+  linear-gradient(
+    45deg,
+    transparent 75%,
+    #1a1a1a 75%
+  ),
+  linear-gradient(
+    -45deg,
+    transparent 75%,
+    #1a1a1a 75%
+  );
+  background-size: 40px 40px;
+  background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+  background-color: #2d5a3d;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  color: #e8f5e8;
 }
 
 #game-container {
-  background: #eafaf1;
-  padding: 28px 42px;
-  border-radius: 15px;
-  box-shadow: 0 3px 14px rgba(32, 75, 56, 0.16);
-  text-align: center;
-  width: 340px;
+  height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
-#coin-btn {
-  font-size: 2rem;
-  padding: 17px 33px;
-  background: #63c57d;
-  border: none;
-  border-radius: 22px;
-  cursor: pointer;
-  margin-bottom: 25px;
-  color: #174c3c;
-  transition: background 0.18s;
+h1 {
+  text-align: center;
+  color: #90ee90;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  margin-bottom: 20px;
+  font-weight: bold;
 }
-#coin-btn:active {
-  background: #43a047;
+
+#game-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 20px;
+  height: calc(100vh - 120px);
+  max-height: 600px;
+}
+
+/* Progress Section */
+#progress-section {
+  background: linear-gradient(135deg, rgba(40, 80, 50, 0.8), rgba(20, 40, 25, 0.9));
+  border: 2px solid rgba(144, 238, 144, 0.3);
+  border-radius: 15px;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+}
+
+#progress-section h2 {
+  color: #90ee90;
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+#progress-content {
+  text-align: center;
+  color: #b8d8b8;
+  font-style: italic;
+}
+
+/* Coin Section */
+#coin-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+#coin-display {
+  background: linear-gradient(135deg, rgba(40, 80, 50, 0.8), rgba(20, 40, 25, 0.9));
+  border: 2px solid rgba(144, 238, 144, 0.3);
+  border-radius: 15px;
+  padding: 15px 30px;
+  backdrop-filter: blur(5px);
 }
 
 #coin-count {
-  font-size: 1.36rem;
-  font-weight: 600;
-  color: #236c40;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-align: center;
 }
 
-#upgrades {
-  margin-top: 30px;
+#coin-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-#auto-upgrade-btn {
-  font-size: 1rem;
-  padding: 9px 16px;
-  background: #bffacf;
+#coin-btn {
+  background: none;
   border: none;
-  border-radius: 10px;
   cursor: pointer;
-  color: #276745;
-  margin-bottom: 7px;
-  transition: background 0.18s;
+  padding: 0;
+  transition: transform 0.1s ease;
 }
-#auto-upgrade-btn:active {
-  background: #97e6b3;
+
+#coin-btn:hover {
+  transform: scale(1.05);
+}
+
+#coin-btn:active {
+  transform: scale(0.95);
+}
+
+.coin {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+  border: 8px solid #b8860b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.5),
+    inset 0 0 20px rgba(255, 255, 255, 0.3),
+    inset 0 0 40px rgba(255, 215, 0, 0.2);
+  position: relative;
+  animation: coinGlow 2s ease-in-out infinite alternate;
+}
+
+.coin-inner {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffed4e 0%, #ffd700 50%, #ffed4e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgba(184, 134, 11, 0.5);
+}
+
+.coin-symbol {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #b8860b;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes coinGlow {
+  from {
+    box-shadow: 
+      0 0 20px rgba(255, 215, 0, 0.5),
+      inset 0 0 20px rgba(255, 255, 255, 0.3),
+      inset 0 0 40px rgba(255, 215, 0, 0.2);
+  }
+  to {
+    box-shadow: 
+      0 0 30px rgba(255, 215, 0, 0.8),
+      inset 0 0 30px rgba(255, 255, 255, 0.5),
+      inset 0 0 60px rgba(255, 215, 0, 0.4);
+  }
+}
+
+#click-instruction {
+  color: #90ee90;
+  font-size: 1.2rem;
+  text-align: center;
+  font-style: italic;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  margin-bottom: 8px;
 }
 
 #auto-info {
+  color: rgba(144, 238, 144, 0.6);
   font-size: 1rem;
-  color: #17693c;
+  text-align: center;
+  font-style: italic;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  opacity: 0.7;
+}
+
+/* Upgrades Section */
+#upgrades-section {
+  background: linear-gradient(135deg, rgba(40, 80, 50, 0.8), rgba(20, 40, 25, 0.9));
+  border: 2px solid rgba(144, 238, 144, 0.3);
+  border-radius: 15px;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+}
+
+#upgrades-section h2 {
+  color: #90ee90;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.upgrade-item {
+  background: rgba(20, 40, 25, 0.7);
+  border: 1px solid rgba(144, 238, 144, 0.2);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.upgrade-info h3 {
+  color: #90ee90;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.upgrade-description {
+  color: #b8d8b8;
+  font-size: 0.9rem;
+  margin-bottom: 3px;
+}
+
+.upgrade-cost {
+  color: #ffd700;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.upgrade-btn {
+  background: linear-gradient(135deg, #90ee90, #32cd32);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: #1a4a1a;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.upgrade-btn:hover {
+  background: linear-gradient(135deg, #98fb98, #3cb371);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.upgrade-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.upgrade-btn:disabled {
+  background: #666;
+  color: #999;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
