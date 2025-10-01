@@ -10,26 +10,35 @@ interface GameState {
     day: number;
     money: number;
     totalProfit: number;
-    inventory: number;
     currentStep: string;
     bottlesBought: number;
     sellingPrice: number;
     waterType: 'filtered' | 'river' | '';
     riverWaterUsage: number; // Track how many times river water was used
     totalCost: number;
+    // Inventory system
+    inventory: {
+        riverWaterBottles: number;
+        filteredWaterBottles: number;
+        emptyBottles: number;
+    };
 }
 
 let gameState: GameState = {
     day: 1,
     money: 0,
     totalProfit: 0,
-    inventory: 0,
     currentStep: 'intro',
     bottlesBought: 0,
     sellingPrice: 0,
     waterType: '',
     riverWaterUsage: 0,
-    totalCost: 0
+    totalCost: 0,
+    inventory: {
+        riverWaterBottles: 0,
+        filteredWaterBottles: 0,
+        emptyBottles: 0
+    }
 };
 
 // DOM elements
@@ -95,6 +104,19 @@ function hideInput(): void {
 
 function clearStory(): void {
     storyTextElement.innerHTML = '';
+}
+
+async function showInventoryStatus(): Promise<void> {
+    const totalBottles = gameState.inventory.riverWaterBottles + gameState.inventory.filteredWaterBottles + gameState.inventory.emptyBottles;
+    
+    if (totalBottles > 0 || gameState.day > 1) {
+        await typewriterText("=== Inventory Check ===", 60);
+        await typewriterText(`Bottles with river water: ${gameState.inventory.riverWaterBottles}`, 40);
+        await typewriterText(`Bottles with filtered water: ${gameState.inventory.filteredWaterBottles}`, 40);
+        await typewriterText(`Empty bottles: ${gameState.inventory.emptyBottles}`, 40);
+        await typewriterText(`Total money: ₹${gameState.money.toFixed(2)}`, 40);
+        await sleep(1000);
+    }
 }
 
 async function showProgressBar(message: string, duration: number = 3000): Promise<void> {
@@ -227,13 +249,13 @@ async function processWaterChoice(input: string): Promise<void> {
         gameState.money -= waterCost;
         gameState.totalCost += waterCost;
         await typewriterText(`You chose filtered water and paid ₹${waterCost.toFixed(2)}.`, 40);
+        gameState.inventory.filteredWaterBottles += gameState.bottlesBought;
     } else {
         gameState.riverWaterUsage++;
         await typewriterText("You chose river water - it's free!", 40);
         await typewriterText("You fill your bottles from the nearby river.", 40);
+        gameState.inventory.riverWaterBottles += gameState.bottlesBought;
     }
-    
-    gameState.inventory = gameState.bottlesBought;
     await typewriterText(`Money left: ₹${gameState.money.toFixed(2)}`, 40);
     
     gameState.currentStep = GameStep.GO_TO_STATION;
@@ -252,7 +274,13 @@ async function goToStation(): Promise<void> {
 }
 
 async function askSellingPrice(): Promise<void> {
-    await typewriterText(`You have ${gameState.inventory} bottles to sell.`, 40);
+    const totalBottles = gameState.inventory.riverWaterBottles + gameState.inventory.filteredWaterBottles;
+    await typewriterText(`You have ${totalBottles} bottles to sell.`, 40);
+    
+    if (gameState.inventory.riverWaterBottles > 0 && gameState.inventory.filteredWaterBottles > 0) {
+        await typewriterText(`(${gameState.inventory.riverWaterBottles} with river water, ${gameState.inventory.filteredWaterBottles} with filtered water)`, 30);
+    }
+    
     await typewriterText("At what price do you want to sell each bottle?", 40);
     await typewriterText("(Remember: Higher prices = fewer sales, Lower prices = more sales)", 30);
     
@@ -284,6 +312,9 @@ async function startSelling(): Promise<void> {
 }
 
 async function simulateSales(): Promise<void> {
+    // Calculate total bottles available for sale
+    const totalBottles = gameState.inventory.riverWaterBottles + gameState.inventory.filteredWaterBottles;
+    
     // Calculate sales based on price
     let salesMultiplier: number;
     if (gameState.sellingPrice <= 1.5) {
@@ -308,12 +339,23 @@ async function simulateSales(): Promise<void> {
     const randomFactor = 0.7 + Math.random() * 0.6; // 0.7 to 1.3
     const actualSalesRate = Math.min(1, salesMultiplier * randomFactor);
     
-    const bottlesSold = Math.floor(gameState.inventory * actualSalesRate);
+    const bottlesSold = Math.floor(totalBottles * actualSalesRate);
     const revenue = bottlesSold * gameState.sellingPrice;
     const profit = revenue - gameState.totalCost;
     
+    // Update inventory by removing sold bottles (prioritize river water first)
+    let remainingSold = bottlesSold;
+    if (remainingSold > 0 && gameState.inventory.riverWaterBottles > 0) {
+        const riverSold = Math.min(remainingSold, gameState.inventory.riverWaterBottles);
+        gameState.inventory.riverWaterBottles -= riverSold;
+        remainingSold -= riverSold;
+    }
+    if (remainingSold > 0 && gameState.inventory.filteredWaterBottles > 0) {
+        const filteredSold = Math.min(remainingSold, gameState.inventory.filteredWaterBottles);
+        gameState.inventory.filteredWaterBottles -= filteredSold;
+    }
+    
     // Update game state
-    gameState.inventory -= bottlesSold;
     gameState.money += revenue;
     gameState.totalProfit += profit;
     
@@ -345,8 +387,10 @@ async function showDayResults(bottlesSold: number, revenue: number, profit: numb
     await typewriterText(`Money in pocket: ₹${gameState.money.toFixed(2)}`, 40);
     await typewriterText(`Total profit so far: ₹${gameState.totalProfit.toFixed(2)}`, 40);
     
-    if (gameState.inventory > 0) {
-        await typewriterText(`Unsold bottles: ${gameState.inventory}`, 40);
+    const remainingBottles = gameState.inventory.riverWaterBottles + gameState.inventory.filteredWaterBottles;
+    if (remainingBottles > 0) {
+        await typewriterText(`Unsold bottles: ${remainingBottles}`, 40);
+        await typewriterText(`(${gameState.inventory.riverWaterBottles} river water, ${gameState.inventory.filteredWaterBottles} filtered water)`, 30);
     }
     
     gameState.currentStep = GameStep.NEXT_DAY;
@@ -373,16 +417,19 @@ async function processNextDay(input: string): Promise<void> {
         const bonusMoney = getRandomInt(3, 15);
         gameState.money += bonusMoney;
         
-        // Reset day-specific values
+        // Reset day-specific values but keep inventory
         gameState.bottlesBought = 0;
-        gameState.inventory = 0;
         gameState.sellingPrice = 0;
         gameState.waterType = '';
         gameState.totalCost = 0;
         
         await typewriterText(`=== Day ${gameState.day} ===`, 80);
         await typewriterText(`A kind stranger gives you ₹${bonusMoney} to help with your business!`, 40);
-        await typewriterText(`Current money: ₹${gameState.money.toFixed(2)}`, 40);
+        
+        // Show inventory status from Day 2 onwards
+        if (gameState.day >= 2) {
+            await showInventoryStatus();
+        }
         
         gameState.currentStep = GameStep.BUY_BOTTLES;
         await askBuyBottles();
