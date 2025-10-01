@@ -27,5 +27,5 @@ I think a better name for this would be "Money Maker" cause this is a continuati
             - Lower cost of bottles = higher selling
         - Added inventory management (will need to work more on this)
         - Added profit tracking
-
-    
+    - Added inventory check that starts from day 2
+    - Added a right click function, so that when the user right clicks it automatically completes the sentence it was writing
