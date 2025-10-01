@@ -451,6 +451,13 @@ function initGame() {
             skipCurrentTyping();
         }
     });
+    // Spacebar to skip typing animation
+    document.addEventListener('keydown', (e) => {
+        if (isTyping && e.code === 'Space' && e.target !== userInput) {
+            e.preventDefault(); // Prevent page scroll
+            skipCurrentTyping();
+        }
+    });
     // Also allow left-click to skip (optional)
     document.addEventListener('click', (e) => {
         if (isTyping && e.target !== userInput && e.target !== submitButton) {
