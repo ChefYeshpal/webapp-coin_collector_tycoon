@@ -351,7 +351,12 @@ async function showDayResults(bottlesSold, revenue, profit) {
 async function askNextDay() {
     await sleep(2000);
     await typewriterText("Would you like to continue to the next day?", 40);
-    await typewriterText("(You'll get some extra money from a kind savior + your current money)", 30);
+    
+    // Only show the "kind savior" message for day 1 (going to day 2)
+    if (gameState.day === 1) {
+        await typewriterText("(You'll get some extra money from a kind savior + your current money)", 30);
+    }
+    
     showInput("Type 'yes' to continue or 'no' to end");
 }
 async function processNextDay(input) {
