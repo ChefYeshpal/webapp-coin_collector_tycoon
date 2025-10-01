@@ -2,7 +2,6 @@
 This is a continuation of a really old project of mine (more like a repository for python) where I basically made a super simple python program in which the user is a beggar, who needs to refill water bottles and sell them at some price. I think I didn't continue it cause I couldn't understand how to add a proper loop statement in the code (for the repeating days) but anyways, I've decided to pick it back up, ofc in TypeScript.
 
 ## Things I wanted to add
-- A small box on the top right, that shows amount of money, unsold bottles, etc along with the current day number
 - Different locations
     - Railway station (here, cheaper water bottle = more sales)
     - Museum (eh, it's there)
@@ -28,5 +27,6 @@ This is a continuation of a really old project of mine (more like a repository f
         - Added profit tracking
     - Added inventory check that starts from day 2
     - Added a right click function, so that when the user right clicks it automatically completes the sentence it was writing
+        - Also if you press the space bar it does the same thing.
     - Changed the name of the project, from ```webapp-coin_collector_tycoon``` to ```webapp-moneymaker```
         - considering that the 2nd name is much more suitable in my opinion
