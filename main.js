@@ -196,13 +196,23 @@ async function askWaterChoice() {
         return;
     }
     await typewriterText("Which water do you choose?", 40);
-    showInput("Type 'filtered' or 'river'");
+    showInput("Type 'filtered'/'filter'/'1' or 'river'/'2'");
 }
 async function processWaterChoice(input) {
     const choice = input.toLowerCase().trim();
-    if (choice !== 'filtered' && choice !== 'river') {
-        await typewriterText("Please type 'filtered' or 'river'.", 40);
-        showInput("Type 'filtered' or 'river'");
+    
+    // Check for filtered water options
+    if (choice === 'filtered' || choice === 'filter' || choice === '1') {
+        gameState.waterType = 'filtered';
+    }
+    // Check for river water options
+    else if (choice === 'river' || choice === '2') {
+        gameState.waterType = 'river';
+    }
+    // Invalid input
+    else {
+        await typewriterText("Please type 'filtered', 'filter', '1' for filtered water, or 'river', '2' for river water.", 40);
+        showInput("Type 'filtered'/'filter'/'1' or 'river'/'2'");
         return;
     }
     gameState.waterType = choice;
