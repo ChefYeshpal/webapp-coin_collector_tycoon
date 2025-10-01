@@ -30,3 +30,4 @@ This is a continuation of a really old project of mine (more like a repository f
         - Also if you press the space bar it does the same thing.
     - Changed the name of the project, from ```webapp-coin_collector_tycoon``` to ```webapp-moneymaker```
         - considering that the 2nd name is much more suitable in my opinion
+    - Added link to github repo
