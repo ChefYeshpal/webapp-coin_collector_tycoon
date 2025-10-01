@@ -1,5 +1,7 @@
 // Game constants
-const BOTTLE_COST = 1; // Cost of empty bottle in INR
+const BOTTLE_COST = 0.5; // Cost of empty bottle in INR (50 paise)
+const FILTERED_WATER_COST = 3; // Cost of filtered water per bottle in INR
+const RIVER_WATER_COST = 0; // Cost of river water (free)
 const MIN_STARTING_MONEY = 5;
 const MAX_STARTING_MONEY = 50;
 
@@ -12,6 +14,9 @@ interface GameState {
     currentStep: string;
     bottlesBought: number;
     sellingPrice: number;
+    waterType: 'filtered' | 'river' | '';
+    riverWaterUsage: number; // Track how many times river water was used
+    totalCost: number;
 }
 
 let gameState: GameState = {
