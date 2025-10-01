@@ -6,7 +6,14 @@ This is a continuation of a really old project of mine (more like a repository f
     - Railway station (here, cheaper water bottle = more sales)
     - Museum (eh, it's there)
     - Mall (will have the least amount of sales, but if bottles are priced higher here than you make more money in general?)
-    - City Hall (you may or may not get shut down)
+    - City Hall (you may or may not get shut down, depending on what water you're using)
+- Hunger system
+    - max can go 3 days without food, after that you die and game ends
+    - food costs 10inr per day
+- Add "customer feedback" and "loyalty"
+    - Basically, with a specific loyalty score, you have a gurantee of getting a certain amount of sales every time you visit a place, but this score can easily fluctuate depending on the price and quality of water
+    - Customer feedback will happen and tell about the water, if the water that user uses is almost always river water, then it will give negative feedback like water tasting funny, and ofc less sales
+
 
 ## Devlogs
 - 30 Sept 2025
