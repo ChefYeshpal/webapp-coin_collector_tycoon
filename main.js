@@ -215,9 +215,9 @@ async function processWaterChoice(input) {
         showInput("Type 'filtered'/'filter'/'1' or 'river'/'2'");
         return;
     }
-    gameState.waterType = choice;
+    
     hideInput();
-    if (choice === 'filtered') {
+    if (gameState.waterType === 'filtered') {
         const waterCost = gameState.bottlesBought * FILTERED_WATER_COST;
         gameState.money -= waterCost;
         gameState.totalCost += waterCost;
