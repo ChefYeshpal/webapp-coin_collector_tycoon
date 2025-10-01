@@ -4,6 +4,11 @@ const FILTERED_WATER_COST = 3; // Cost of filtered water per bottle in INR
 const RIVER_WATER_COST = 0; // Cost of river water (free)
 const MIN_STARTING_MONEY = 5;
 const MAX_STARTING_MONEY = 50;
+
+// Game settings
+const gameSettings = {
+    animationMode: true // true = animations, false = steps
+};
 let gameState = {
     day: 1,
     money: 0,
@@ -27,6 +32,7 @@ let storyTextElement;
 let inputSection;
 let userInput;
 let submitButton;
+let toggleButton;
 // Typewriter control variables
 let isTyping = false;
 let skipTyping = false;
@@ -103,15 +109,147 @@ function skipCurrentTyping() {
         skipTyping = true;
     }
 }
+
+// Hybrid display functions
+async function displayText(text, speed = 50) {
+    if (gameSettings.animationMode) {
+        await typewriterText(text, speed);
+    } else {
+        // Step mode - instant display
+        const paragraph = document.createElement('div');
+        paragraph.className = 'story-paragraph';
+        paragraph.textContent = text;
+        storyTextElement.appendChild(paragraph);
+    }
+}
+
+async function displayStep(stepTitle, messages, showContinueButton = true) {
+    if (gameSettings.animationMode) {
+        // Animation mode - show messages with typewriter effect
+        for (const message of messages) {
+            await typewriterText(message, 40);
+        }
+    } else {
+        // Step mode - show all at once in a structured format
+        clearStory();
+        
+        // Step header
+        const stepHeader = document.createElement('div');
+        stepHeader.className = 'story-paragraph';
+        stepHeader.innerHTML = `<strong>=== ${stepTitle} ===</strong>`;
+        storyTextElement.appendChild(stepHeader);
+        
+        // All messages at once
+        messages.forEach(message => {
+            const paragraph = document.createElement('div');
+            paragraph.className = 'story-paragraph';
+            paragraph.textContent = message;
+            storyTextElement.appendChild(paragraph);
+        });
+        
+        // Continue button in step mode
+        if (showContinueButton) {
+            const continueButton = document.createElement('button');
+            continueButton.textContent = 'Continue';
+            continueButton.className = 'continue-btn';
+            continueButton.style.cssText = `
+                margin: 20px 0;
+                padding: 10px 20px;
+                background: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+            `;
+            
+            storyTextElement.appendChild(continueButton);
+            
+            return new Promise(resolve => {
+                continueButton.addEventListener('click', () => {
+                    continueButton.remove();
+                    resolve();
+                });
+            });
+        }
+    }
+}
+
+function createToggleButton() {
+    toggleButton = document.createElement('button');
+    toggleButton.textContent = gameSettings.animationMode ? '📽️' : '📋';
+    toggleButton.title = gameSettings.animationMode ? 'Switch to Steps Mode' : 'Switch to Animation Mode';
+    toggleButton.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 2px solid #4CAF50;
+        background: #fff;
+        cursor: pointer;
+        font-size: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 1000;
+        transition: all 0.3s ease;
+    `;
+    
+    toggleButton.addEventListener('click', toggleAnimationMode);
+    toggleButton.addEventListener('mouseenter', () => {
+        toggleButton.style.transform = 'scale(1.1)';
+    });
+    toggleButton.addEventListener('mouseleave', () => {
+        toggleButton.style.transform = 'scale(1)';
+    });
+    
+    document.body.appendChild(toggleButton);
+}
+
+function toggleAnimationMode() {
+    gameSettings.animationMode = !gameSettings.animationMode;
+    toggleButton.textContent = gameSettings.animationMode ? '📽️' : '📋';
+    toggleButton.title = gameSettings.animationMode ? 'Switch to Steps Mode' : 'Switch to Animation Mode';
+    
+    // Show feedback
+    const feedback = document.createElement('div');
+    feedback.textContent = gameSettings.animationMode ? 'Animation Mode ON' : 'Steps Mode ON';
+    feedback.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 1001;
+        font-weight: bold;
+    `;
+    document.body.appendChild(feedback);
+    
+    setTimeout(() => {
+        feedback.remove();
+    }, 2000);
+}
 async function showInventoryStatus() {
     const totalBottles = gameState.inventory.riverWaterBottles + gameState.inventory.filteredWaterBottles + gameState.inventory.emptyBottles;
     if (totalBottles > 0 || gameState.day > 1) {
-        await typewriterText("=== Inventory Check ===", 60);
-        await typewriterText(`Bottles with river water: ${gameState.inventory.riverWaterBottles}`, 40);
-        await typewriterText(`Bottles with filtered water: ${gameState.inventory.filteredWaterBottles}`, 40);
-        await typewriterText(`Empty bottles: ${gameState.inventory.emptyBottles}`, 40);
-        await typewriterText(`Total money: ₹${gameState.money.toFixed(2)}`, 40);
-        await sleep(1000);
+        const messages = [
+            "=== Inventory Check ===",
+            `Bottles with river water: ${gameState.inventory.riverWaterBottles}`,
+            `Bottles with filtered water: ${gameState.inventory.filteredWaterBottles}`,
+            `Empty bottles: ${gameState.inventory.emptyBottles}`,
+            `Total money: ₹${gameState.money.toFixed(2)}`
+        ];
+        
+        if (gameSettings.animationMode) {
+            for (const message of messages) {
+                await displayText(message, message.includes("===") ? 60 : 40);
+            }
+            await sleep(1000);
+        } else {
+            await displayStep("Inventory Check", messages.slice(1), false);
+        }
     }
 }
 async function showProgressBar(message, duration = 3000) {
@@ -145,35 +283,59 @@ async function showProgressBar(message, duration = 3000) {
 }
 // Game logic functions
 async function startIntro() {
-    await typewriterText("# Water Bottle Tycoon", 100);
-    await sleep(1000);
-    await typewriterText("You are a very poor person, and you somehow managed to get hold of some money (legally) and you want to make more money...", 40);
-    await typewriterText("So you decide that you will sell water bottles.", 40);
-    await typewriterText("But first, let me explain how this works:", 40);
-    await typewriterText("• Empty bottles cost ₹0.50 each (50 paise)", 40);
-    await typewriterText("• You need to fill them with water", 40);
-    await typewriterText("• Filtered water costs ₹3 per bottle", 40);
-    await typewriterText("• River water is free (but...)", 40);
-    await sleep(1000);
     // Generate random starting money
     gameState.money = getRandomInt(MIN_STARTING_MONEY, MAX_STARTING_MONEY);
     gameState.day = 1;
-    await typewriterText(`You wake up on Day ${gameState.day} and check your pocket...`, 40);
-    await typewriterText(`You have ₹${gameState.money} with you!`, 40);
+    
+    const introMessages = [
+        "# Water Bottle Tycoon",
+        "You are a very poor person, and you somehow managed to get hold of some money (legally) and you want to make more money...",
+        "So you decide that you will sell water bottles.",
+        "But first, let me explain how this works:",
+        "• Empty bottles cost ₹0.50 each (50 paise)",
+        "• You need to fill them with water",
+        "• Filtered water costs ₹3 per bottle",
+        "• River water is free (but...)",
+        `You wake up on Day ${gameState.day} and check your pocket...`,
+        `You have ₹${gameState.money} with you!`
+    ];
+    
+    if (gameSettings.animationMode) {
+        await displayText("# Water Bottle Tycoon", 100);
+        await sleep(1000);
+        for (let i = 1; i < introMessages.length; i++) {
+            await displayText(introMessages[i], 40);
+            if (i === 8) await sleep(1000); // Pause before money reveal
+        }
+    } else {
+        await displayStep("Game Introduction", introMessages);
+    }
+    
     gameState.currentStep = GameStep.BUY_BOTTLES;
     await askBuyBottles();
 }
 async function askBuyBottles() {
     const maxBottles = Math.floor(gameState.money / BOTTLE_COST);
-    await typewriterText(`With ₹${gameState.money}, you can buy a maximum of ${maxBottles} empty bottles at ₹0.50 each.`, 40);
-    await typewriterText("How many bottles do you want to buy?", 40);
+    const messages = [
+        `With ₹${gameState.money}, you can buy a maximum of ${maxBottles} empty bottles at ₹0.50 each.`,
+        "How many bottles do you want to buy?"
+    ];
+    
+    if (gameSettings.animationMode) {
+        for (const message of messages) {
+            await displayText(message, 40);
+        }
+    } else {
+        await displayStep("Buying Phase", messages, false);
+    }
+    
     showInput(`Enter a number between 1 and ${maxBottles}`);
 }
 async function processBuyBottles(input) {
     const bottles = parseInt(input);
     const maxBottles = Math.floor(gameState.money / BOTTLE_COST);
     if (isNaN(bottles) || bottles < 1 || bottles > maxBottles) {
-        await typewriterText(`Please enter a valid number between 1 and ${maxBottles}.`, 40);
+        await displayText(`Please enter a valid number between 1 and ${maxBottles}.`, 40);
         showInput(`Enter a number between 1 and ${maxBottles}`);
         return;
     }
@@ -181,8 +343,20 @@ async function processBuyBottles(input) {
     gameState.money -= bottles * BOTTLE_COST;
     gameState.totalCost = bottles * BOTTLE_COST;
     hideInput();
-    await typewriterText(`You bought ${bottles} empty bottles for ₹${(bottles * BOTTLE_COST).toFixed(2)}.`, 40);
-    await typewriterText(`You have ₹${gameState.money.toFixed(2)} left.`, 40);
+    
+    const messages = [
+        `You bought ${bottles} empty bottles for ₹${(bottles * BOTTLE_COST).toFixed(2)}.`,
+        `You have ₹${gameState.money.toFixed(2)} left.`
+    ];
+    
+    if (gameSettings.animationMode) {
+        for (const message of messages) {
+            await displayText(message, 40);
+        }
+    } else {
+        await displayStep("Purchase Complete", messages);
+    }
+    
     gameState.currentStep = GameStep.CHOOSE_WATER;
     await askWaterChoice();
 }
@@ -520,6 +694,10 @@ function initGame() {
             skipCurrentTyping();
         }
     });
+    
+    // Create and initialize toggle button
+    createToggleButton();
+    
     // Start the game
     startIntro();
 }
