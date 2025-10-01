@@ -292,13 +292,13 @@ async function simulateSales() {
     else if (gameState.sellingPrice <= 5) {
         salesMultiplier = 0.5; // Moderate sales
     }
-    else if (gameState.sellingPrice <= 8) {
+    else if (gameState.sellingPrice <= 9) {
         salesMultiplier = 0.3; // Low sales
     }
     else {
         salesMultiplier = 0.1; // Very low sales
     }
-    // River water penalty (hidden mechanic)
+    // River water penalty
     if (gameState.waterType === 'river') {
         const penalty = Math.min(0.3, gameState.riverWaterUsage * 0.1); // Max 30% penalty
         salesMultiplier *= (1 - penalty);
