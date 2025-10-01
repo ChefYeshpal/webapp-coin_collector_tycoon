@@ -47,6 +47,11 @@ let inputSection: HTMLElement;
 let userInput: HTMLInputElement;
 let submitButton: HTMLElement;
 
+// Typewriter control variables
+let isTyping: boolean = false;
+let skipTyping: boolean = false;
+let currentTypingElement: HTMLElement | null = null;
+
 // Game flow steps
 enum GameStep {
     INTRO = 'intro',
@@ -73,14 +78,35 @@ async function typewriterText(text: string, speed: number = 50): Promise<void> {
     paragraph.className = 'story-paragraph';
     storyTextElement.appendChild(paragraph);
     
+    isTyping = true;
+    currentTypingElement = paragraph;
+    skipTyping = false;
+    
     await sleep(500); // Pause before typing
     
+    // If skip was triggered during the initial pause, complete immediately
+    if (skipTyping) {
+        paragraph.textContent = text;
+        isTyping = false;
+        currentTypingElement = null;
+        await sleep(200); // Brief pause
+        return;
+    }
+    
     for (let i = 0; i <= text.length; i++) {
+        // Check if we should skip typing
+        if (skipTyping) {
+            paragraph.textContent = text;
+            break;
+        }
+        
         paragraph.textContent = text.slice(0, i);
         await sleep(speed);
     }
     
-    await sleep(800); // Pause after typing
+    isTyping = false;
+    currentTypingElement = null;
+    await sleep(skipTyping ? 200 : 800); // Shorter pause if skipped
 }
 
 async function showText(text: string): Promise<void> {
@@ -104,6 +130,12 @@ function hideInput(): void {
 
 function clearStory(): void {
     storyTextElement.innerHTML = '';
+}
+
+function skipCurrentTyping(): void {
+    if (isTyping && currentTypingElement) {
+        skipTyping = true;
+    }
 }
 
 async function showInventoryStatus(): Promise<void> {
@@ -497,6 +529,21 @@ function initGame(): void {
     userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             handleSubmit();
+        }
+    });
+    
+    // Right-click to skip typing animation
+    document.addEventListener('contextmenu', (e) => {
+        if (isTyping) {
+            e.preventDefault(); // Prevent context menu from showing
+            skipCurrentTyping();
+        }
+    });
+    
+    // Also allow left-click to skip (optional)
+    document.addEventListener('click', (e) => {
+        if (isTyping && e.target !== userInput && e.target !== submitButton) {
+            skipCurrentTyping();
         }
     });
     

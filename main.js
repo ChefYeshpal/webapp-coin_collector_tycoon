@@ -25,6 +25,10 @@ let storyTextElement;
 let inputSection;
 let userInput;
 let submitButton;
+// Typewriter control variables
+let isTyping = false;
+let skipTyping = false;
+let currentTypingElement = null;
 // Game flow steps
 var GameStep;
 (function (GameStep) {
@@ -48,12 +52,30 @@ async function typewriterText(text, speed = 50) {
     const paragraph = document.createElement('div');
     paragraph.className = 'story-paragraph';
     storyTextElement.appendChild(paragraph);
+    isTyping = true;
+    currentTypingElement = paragraph;
+    skipTyping = false;
     await sleep(500); // Pause before typing
+    // If skip was triggered during the initial pause, complete immediately
+    if (skipTyping) {
+        paragraph.textContent = text;
+        isTyping = false;
+        currentTypingElement = null;
+        await sleep(200); // Brief pause
+        return;
+    }
     for (let i = 0; i <= text.length; i++) {
+        // Check if we should skip typing
+        if (skipTyping) {
+            paragraph.textContent = text;
+            break;
+        }
         paragraph.textContent = text.slice(0, i);
         await sleep(speed);
     }
-    await sleep(800); // Pause after typing
+    isTyping = false;
+    currentTypingElement = null;
+    await sleep(skipTyping ? 200 : 800); // Shorter pause if skipped
 }
 async function showText(text) {
     const paragraph = document.createElement('div');
@@ -73,6 +95,11 @@ function hideInput() {
 }
 function clearStory() {
     storyTextElement.innerHTML = '';
+}
+function skipCurrentTyping() {
+    if (isTyping && currentTypingElement) {
+        skipTyping = true;
+    }
 }
 async function showInventoryStatus() {
     const totalBottles = gameState.inventory.riverWaterBottles + gameState.inventory.filteredWaterBottles + gameState.inventory.emptyBottles;
@@ -400,6 +427,19 @@ function initGame() {
     userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             handleSubmit();
+        }
+    });
+    // Right-click to skip typing animation
+    document.addEventListener('contextmenu', (e) => {
+        if (isTyping) {
+            e.preventDefault(); // Prevent context menu from showing
+            skipCurrentTyping();
+        }
+    });
+    // Also allow left-click to skip (optional)
+    document.addEventListener('click', (e) => {
+        if (isTyping && e.target !== userInput && e.target !== submitButton) {
+            skipCurrentTyping();
         }
     });
     // Start the game
