@@ -454,6 +454,13 @@ async function endGame() {
     }
     await sleep(3000);
     await typewriterText("Refresh the page to play again!", 40);
+    await sleep(1000);
+    
+    // Add repository link
+    const linkParagraph = document.createElement('div');
+    linkParagraph.className = 'story-paragraph';
+    linkParagraph.innerHTML = `Take a look at the repository: <a href="https://github.com/ChefYeshpal/webapp-moneymaker" target="_blank" style="color: #4CAF50; text-decoration: underline;">https://github.com/ChefYeshpal/webapp-moneymaker</a>`;
+    storyTextElement.appendChild(linkParagraph);
 }
 // Event handlers
 function handleSubmit() {
