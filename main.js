@@ -252,7 +252,12 @@ async function askSellingPrice() {
         await typewriterText(`(${gameState.inventory.riverWaterBottles} with river water, ${gameState.inventory.filteredWaterBottles} with filtered water)`, 30);
     }
     await typewriterText("At what price do you want to sell each bottle?", 40);
-    await typewriterText("(Remember: Higher prices = fewer sales, Lower prices = more sales)", 30);
+    
+    // Only show pricing hint for the first 4 days
+    if (gameState.day <= 4) {
+        await typewriterText("(Remember: Higher prices = fewer sales, Lower prices = more sales)", 30);
+    }
+    
     showInput("Enter price in ₹ (e.g., 2.5)");
 }
 async function processSellingPrice(input) {
