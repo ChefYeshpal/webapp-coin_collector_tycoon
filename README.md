@@ -1,5 +1,7 @@
 # webapp-moneymaker
-This is a continuation of a really old project of mine (more like a repository for python) where I basically made a super simple python program in which the user is a beggar, who needs to refill water bottles and sell them at some price. I think I didn't continue it cause I couldn't understand how to add a proper loop statement in the code (for the repeating days) but anyways, I've decided to pick it back up, ofc in TypeScript.
+This is a continuation of a really old project of mine (more like a repository for python) where I basically made a super simple python program in which the user is a beggar, who needs to refill water bottles and sell them at some price. I think I didn't continue it cause I couldn't understand how to add a proper loop statement in the code (for the repeating days) but anyways, I've decided to pick it back up, ofc in JavaScript.
+
+Also, this is kinda based off of a text-based game which I played when I was younger, can you figure out what it is?
 
 ## Things I wanted to add
 - Different locations
