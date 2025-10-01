@@ -14,6 +14,8 @@ let gameState = {
     waterType: '',
     riverWaterUsage: 0,
     totalCost: 0,
+    consecutiveProfitDays: 0,
+    consecutiveLossDays: 0,
     inventory: {
         riverWaterBottles: 0,
         filteredWaterBottles: 0,
@@ -211,7 +213,7 @@ async function processWaterChoice(input) {
     }
     // Invalid input
     else {
-        await typewriterText("Please type 'filtered', 'filter', '1' for filtered water, or 'river', '2' for river water.", 40);
+        await typewriterText("Please type ''filtered', 'filter', '1' for filtered water, or 'river', '2' for river water.'", 40);
         showInput("Type 'filtered'/'filter'/'1' or 'river'/'2'");
         return;
     }
@@ -316,6 +318,20 @@ async function simulateSales() {
     // Update game state
     gameState.money += revenue;
     gameState.totalProfit += profit;
+    
+    // Track consecutive profit/loss days
+    if (profit > 0) {
+        gameState.consecutiveProfitDays++;
+        gameState.consecutiveLossDays = 0;
+    } else if (profit < 0) {
+        gameState.consecutiveLossDays++;
+        gameState.consecutiveProfitDays = 0;
+    } else {
+        // Break-even resets both counters
+        gameState.consecutiveProfitDays = 0;
+        gameState.consecutiveLossDays = 0;
+    }
+    
     gameState.currentStep = GameStep.DAY_RESULTS;
     await showDayResults(bottlesSold, revenue, profit);
 }
@@ -366,15 +382,43 @@ async function processNextDay(input) {
         clearStory();
         // Start new day
         gameState.day++;
-        const bonusMoney = getRandomInt(3, 15);
+        
+        // Dynamic bonus money based on performance
+        let bonusMoney = 0;
+        let bonusMessage = '';
+        
+        if (gameState.consecutiveProfitDays >= 5) {
+            // Stop giving money after 5 consecutive profitable days
+            bonusMoney = 0;
+            bonusMessage = 'You\'re doing well on your own now! No extra help today.';
+        } else if (gameState.consecutiveLossDays >= 3) {
+            // Increased help for struggling players
+            bonusMoney = getRandomInt(20, 35);
+            bonusMessage = `A concerned stranger sees your struggles and gives you ₹${bonusMoney} to help!`;
+        } else if (gameState.consecutiveLossDays >= 1) {
+            // Moderate help for some losses
+            bonusMoney = getRandomInt(10, 20);
+            bonusMessage = `A kind stranger gives you ₹${bonusMoney} to help with your business!`;
+        } else {
+            // Normal help
+            bonusMoney = getRandomInt(3, 15);
+            bonusMessage = `A kind stranger gives you ₹${bonusMoney} to help with your business!`;
+        }
+        
         gameState.money += bonusMoney;
+        
         // Reset day-specific values but keep inventory
         gameState.bottlesBought = 0;
         gameState.sellingPrice = 0;
         gameState.waterType = '';
         gameState.totalCost = 0;
+        
         await typewriterText(`=== Day ${gameState.day} ===`, 80);
-        await typewriterText(`A kind stranger gives you ₹${bonusMoney} to help with your business!`, 40);
+        if (bonusMoney > 0) {
+            await typewriterText(bonusMessage, 40);
+        } else {
+            await typewriterText(bonusMessage, 40);
+        }
         // Show inventory status from Day 2 onwards
         if (gameState.day >= 2) {
             await showInventoryStatus();
