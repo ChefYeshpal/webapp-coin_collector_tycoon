@@ -8,7 +8,6 @@ This is a continuation of a really old project of mine (more like a repository f
     - Museum (eh, it's there)
     - Mall (will have the least amount of sales, but if bottles are priced higher here than you make more money in general?)
     - City Hall (you may or may not get shut down)
-- A favicon
 
 ## Devlogs
 - 30 Sept 2025
