@@ -26,7 +26,10 @@ let gameState: GameState = {
     inventory: 0,
     currentStep: 'intro',
     bottlesBought: 0,
-    sellingPrice: 0
+    sellingPrice: 0,
+    waterType: '',
+    riverWaterUsage: 0,
+    totalCost: 0
 };
 
 // DOM elements
@@ -39,8 +42,10 @@ let submitButton: HTMLElement;
 enum GameStep {
     INTRO = 'intro',
     BUY_BOTTLES = 'buy_bottles',
+    CHOOSE_WATER = 'choose_water',
     GO_TO_STATION = 'go_to_station',
     SET_PRICE = 'set_price',
+    SELLING = 'selling',
     DAY_RESULTS = 'day_results',
     NEXT_DAY = 'next_day'
 }
@@ -92,6 +97,40 @@ function clearStory(): void {
     storyTextElement.innerHTML = '';
 }
 
+async function showProgressBar(message: string, duration: number = 3000): Promise<void> {
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'progress-container';
+    progressContainer.innerHTML = `
+        <div class="progress-message">${message}</div>
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+    `;
+    storyTextElement.appendChild(progressContainer);
+    
+    const progressFill = progressContainer.querySelector('.progress-fill') as HTMLElement;
+    
+    // Animate the progress bar
+    let progress = 0;
+    const interval = 50;
+    const increment = (interval / duration) * 100;
+    
+    return new Promise((resolve) => {
+        const timer = setInterval(() => {
+            progress += increment;
+            progressFill.style.width = `${Math.min(progress, 100)}%`;
+            
+            if (progress >= 100) {
+                clearInterval(timer);
+                setTimeout(() => {
+                    progressContainer.remove();
+                    resolve();
+                }, 500);
+            }
+        }, interval);
+    });
+}
+
 // Game logic functions
 async function startIntro(): Promise<void> {
     await typewriterText("# Water Bottle Tycoon", 100);
@@ -101,7 +140,12 @@ async function startIntro(): Promise<void> {
     
     await typewriterText("So you decide that you will sell water bottles.", 40);
     
-    await typewriterText("When you check the price of one empty water bottle, you get to know that it costs ₹1.", 40);
+    await typewriterText("But first, let me explain how this works:", 40);
+    
+    await typewriterText("• Empty bottles cost ₹0.50 each (50 paise)", 40);
+    await typewriterText("• You need to fill them with water", 40);
+    await typewriterText("• Filtered water costs ₹3 per bottle", 40);
+    await typewriterText("• River water is free (but...)", 40);
     
     await sleep(1000);
     
@@ -119,7 +163,7 @@ async function startIntro(): Promise<void> {
 async function askBuyBottles(): Promise<void> {
     const maxBottles = Math.floor(gameState.money / BOTTLE_COST);
     
-    await typewriterText(`With ₹${gameState.money}, you can buy a maximum of ${maxBottles} empty bottles.`, 40);
+    await typewriterText(`With ₹${gameState.money}, you can buy a maximum of ${maxBottles} empty bottles at ₹0.50 each.`, 40);
     await typewriterText("How many bottles do you want to buy?", 40);
     
     showInput(`Enter a number between 1 and ${maxBottles}`);
@@ -137,21 +181,69 @@ async function processBuyBottles(input: string): Promise<void> {
     
     gameState.bottlesBought = bottles;
     gameState.money -= bottles * BOTTLE_COST;
-    gameState.inventory = bottles;
+    gameState.totalCost = bottles * BOTTLE_COST;
     
     hideInput();
     
-    await typewriterText(`You bought ${bottles} empty bottles for ₹${bottles * BOTTLE_COST}.`, 40);
-    await typewriterText(`You have ₹${gameState.money} left in your pocket.`, 40);
+    await typewriterText(`You bought ${bottles} empty bottles for ₹${(bottles * BOTTLE_COST).toFixed(2)}.`, 40);
+    await typewriterText(`You have ₹${gameState.money.toFixed(2)} left.`, 40);
+    
+    gameState.currentStep = GameStep.CHOOSE_WATER;
+    await askWaterChoice();
+}
+
+async function askWaterChoice(): Promise<void> {
+    await typewriterText("Now you need to fill the bottles with water.", 40);
+    await typewriterText(`Option 1: Filtered water - ₹3 per bottle (Total: ₹${(gameState.bottlesBought * FILTERED_WATER_COST).toFixed(2)})`, 40);
+    await typewriterText("Option 2: River water - Free (but you never know...)", 40);
+    
+    const canAffordFiltered = gameState.money >= gameState.bottlesBought * FILTERED_WATER_COST;
+    
+    if (!canAffordFiltered) {
+        await typewriterText("⚠️ You don't have enough money for filtered water!", 40);
+        await typewriterText("You'll have to use river water.", 40);
+        await processWaterChoice('river');
+        return;
+    }
+    
+    await typewriterText("Which water do you choose?", 40);
+    showInput("Type 'filtered' or 'river'");
+}
+
+async function processWaterChoice(input: string): Promise<void> {
+    const choice = input.toLowerCase().trim();
+    
+    if (choice !== 'filtered' && choice !== 'river') {
+        await typewriterText("Please type 'filtered' or 'river'.", 40);
+        showInput("Type 'filtered' or 'river'");
+        return;
+    }
+    
+    gameState.waterType = choice as 'filtered' | 'river';
+    hideInput();
+    
+    if (choice === 'filtered') {
+        const waterCost = gameState.bottlesBought * FILTERED_WATER_COST;
+        gameState.money -= waterCost;
+        gameState.totalCost += waterCost;
+        await typewriterText(`You chose filtered water and paid ₹${waterCost.toFixed(2)}.`, 40);
+    } else {
+        gameState.riverWaterUsage++;
+        await typewriterText("You chose river water - it's free!", 40);
+        await typewriterText("You fill your bottles from the nearby river.", 40);
+    }
+    
+    gameState.inventory = gameState.bottlesBought;
+    await typewriterText(`Money left: ₹${gameState.money.toFixed(2)}`, 40);
     
     gameState.currentStep = GameStep.GO_TO_STATION;
     await goToStation();
 }
 
 async function goToStation(): Promise<void> {
-    await typewriterText("You fill the bottles with water and head to the railway station...", 40);
+    await typewriterText("Time to head to the railway station to sell your water bottles...", 40);
     await sleep(1500);
-    await typewriterText("*Time passes...*", 60);
+    await typewriterText("*Walking to the station...*", 60);
     await sleep(1500);
     await typewriterText("You arrive at the busy railway station with your water bottles.", 40);
     
@@ -180,17 +272,18 @@ async function processSellingPrice(input: string): Promise<void> {
     hideInput();
     
     await typewriterText(`You set the price at ₹${price} per bottle.`, 40);
+    await typewriterText("Time to start selling!", 40);
     
-    gameState.currentStep = GameStep.DAY_RESULTS;
+    gameState.currentStep = GameStep.SELLING;
+    await startSelling();
+}
+
+async function startSelling(): Promise<void> {
+    await showProgressBar("Selling bottles...", 3000);
     await simulateSales();
 }
 
 async function simulateSales(): Promise<void> {
-    await typewriterText("You start selling your bottles...", 40);
-    await sleep(2000);
-    await typewriterText("*Time passes as customers come and go...*", 60);
-    await sleep(2000);
-    
     // Calculate sales based on price
     let salesMultiplier: number;
     if (gameState.sellingPrice <= 1.5) {
@@ -205,36 +298,49 @@ async function simulateSales(): Promise<void> {
         salesMultiplier = 0.1; // Very low sales
     }
     
+    // River water penalty (hidden mechanic)
+    if (gameState.waterType === 'river') {
+        const penalty = Math.min(0.3, gameState.riverWaterUsage * 0.1); // Max 30% penalty
+        salesMultiplier *= (1 - penalty);
+    }
+    
     // Add some randomness
     const randomFactor = 0.7 + Math.random() * 0.6; // 0.7 to 1.3
     const actualSalesRate = Math.min(1, salesMultiplier * randomFactor);
     
     const bottlesSold = Math.floor(gameState.inventory * actualSalesRate);
     const revenue = bottlesSold * gameState.sellingPrice;
-    const cost = gameState.bottlesBought * BOTTLE_COST;
-    const profit = revenue - cost;
+    const profit = revenue - gameState.totalCost;
     
     // Update game state
     gameState.inventory -= bottlesSold;
     gameState.money += revenue;
     gameState.totalProfit += profit;
     
-    await showDayResults(bottlesSold, revenue, cost, profit);
+    gameState.currentStep = GameStep.DAY_RESULTS;
+    await showDayResults(bottlesSold, revenue, profit);
 }
 
-async function showDayResults(bottlesSold: number, revenue: number, cost: number, profit: number): Promise<void> {
+async function showDayResults(bottlesSold: number, revenue: number, profit: number): Promise<void> {
     await typewriterText("=== End of Day Results ===", 40);
     await typewriterText(`Bottles sold: ${bottlesSold} out of ${gameState.bottlesBought}`, 40);
     await typewriterText(`Revenue earned: ₹${revenue.toFixed(2)}`, 40);
-    await typewriterText(`Total cost: ₹${cost.toFixed(2)}`, 40);
+    await typewriterText(`Total cost: ₹${gameState.totalCost.toFixed(2)}`, 40);
+    
+    // Create profit/loss display with colors
+    const profitElement = document.createElement('div');
+    profitElement.className = 'story-paragraph';
     
     if (profit > 0) {
-        await typewriterText(`✓ Profit: ₹${profit.toFixed(2)}`, 40);
+        profitElement.innerHTML = `<span class="profit">✓ Profit: ₹${profit.toFixed(2)}</span>`;
     } else if (profit < 0) {
-        await typewriterText(`✗ Loss: ₹${Math.abs(profit).toFixed(2)}`, 40);
+        profitElement.innerHTML = `<span class="loss">✗ Loss: ₹${Math.abs(profit).toFixed(2)}</span>`;
     } else {
-        await typewriterText(`➤ Break-even: ₹0`, 40);
+        profitElement.innerHTML = `<span class="neutral">➤ Break-even: ₹0</span>`;
     }
+    
+    storyTextElement.appendChild(profitElement);
+    await sleep(1000);
     
     await typewriterText(`Money in pocket: ₹${gameState.money.toFixed(2)}`, 40);
     await typewriterText(`Total profit so far: ₹${gameState.totalProfit.toFixed(2)}`, 40);
@@ -250,7 +356,7 @@ async function showDayResults(bottlesSold: number, revenue: number, cost: number
 async function askNextDay(): Promise<void> {
     await sleep(2000);
     await typewriterText("Would you like to continue to the next day?", 40);
-    await typewriterText("(You'll get some extra money + your current profits)", 30);
+    await typewriterText("(You'll get some extra money from a kind savior + your current money)", 30);
     
     showInput("Type 'yes' to continue or 'no' to end");
 }
@@ -267,8 +373,15 @@ async function processNextDay(input: string): Promise<void> {
         const bonusMoney = getRandomInt(3, 15);
         gameState.money += bonusMoney;
         
+        // Reset day-specific values
+        gameState.bottlesBought = 0;
+        gameState.inventory = 0;
+        gameState.sellingPrice = 0;
+        gameState.waterType = '';
+        gameState.totalCost = 0;
+        
         await typewriterText(`=== Day ${gameState.day} ===`, 80);
-        await typewriterText(`You wake up refreshed and find ₹${bonusMoney} extra money!`, 40);
+        await typewriterText(`A kind stranger gives you ₹${bonusMoney} to help with your business!`, 40);
         await typewriterText(`Current money: ₹${gameState.money.toFixed(2)}`, 40);
         
         gameState.currentStep = GameStep.BUY_BOTTLES;
@@ -287,6 +400,10 @@ async function endGame(): Promise<void> {
     await typewriterText(`You played for ${gameState.day} day(s).`, 40);
     await typewriterText(`Final money: ₹${gameState.money.toFixed(2)}`, 40);
     await typewriterText(`Total profit earned: ₹${gameState.totalProfit.toFixed(2)}`, 40);
+    
+    if (gameState.riverWaterUsage > 0) {
+        await typewriterText(`You used river water ${gameState.riverWaterUsage} time(s). This may have affected your sales...`, 40);
+    }
     
     if (gameState.totalProfit > 0) {
         await typewriterText("Congratulations! You're a successful water bottle entrepreneur!", 40);
@@ -308,6 +425,9 @@ function handleSubmit(): void {
     switch (gameState.currentStep) {
         case GameStep.BUY_BOTTLES:
             processBuyBottles(input);
+            break;
+        case GameStep.CHOOSE_WATER:
+            processWaterChoice(input);
             break;
         case GameStep.SET_PRICE:
             processSellingPrice(input);
