@@ -9,4 +9,6 @@ I think a better name for this would be "Money Maker" cause this is a continuati
     - Tried a more "coin collector tycoon" type of thing, I didn't see it having any special or unique qualities so just deleted it all after like... 45 mins of work?
     - Copied the latest ``MM04.py`` from my MoneyMaker repository (https://github.com/ChefYeshpal/MoneyMaker/blob/master/MM0.4.py)
         - Dang I haven't touched that in 2 whole years... time flies by fast.
+- 1 Oct 2025
+    - Changed the python code to typescript
     
