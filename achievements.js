@@ -3,25 +3,39 @@ class AchievementManager {
     constructor() {
         this.achievements = {
             oneSelling: {
-                id: 'oneSelling',
+                bigSpender: {
+                id: 'bigSpender',
+                name: 'Big Spender',
+                description: 'Buy 50 bottles filled with filtered water',
+                unlocked: false,
+                icon: '🛍️',
+                progress: 0,
+                target: 50
+            },     id: 'oneSelling',
                 name: 'One Bottle Wonder',
                 description: 'Sell exactly one bottle',
                 unlocked: false,
-                icon: '🍼'
+                icon: '🍼',
+                progress: 0,
+                target: 1
             },
             firstProfit: {
                 id: 'firstProfit',
                 name: 'First Profit',
                 description: 'Make your first profit in a day',
                 unlocked: false,
-                icon: '💰'
+                icon: '💰',
+                progress: 0,
+                target: 1
             },
             totalProfit: {
                 id: 'totalProfit',
                 name: 'In The Green',
                 description: 'Have positive total profit',
                 unlocked: false,
-                icon: '📈'
+                icon: '📈',
+                progress: 0,
+                target: 1
             },
             riverWaterBaron: {
                 id: 'riverWaterBaron',
@@ -118,14 +132,18 @@ class AchievementManager {
                 name: 'Survivor',
                 description: 'Survive 30 days',
                 unlocked: false,
-                icon: '🏆'
+                icon: '🏆',
+                progress: 0,
+                target: 30
             },
             profiteer: {
                 id: 'profiteer',
                 name: 'Profiteer',
                 description: 'Get profit for 10 consecutive days',
                 unlocked: false,
-                icon: '⭐'
+                icon: '⭐',
+                progress: 0,
+                target: 10
             },
             bigSpender: {
                 id: 'bigSpender',
@@ -139,7 +157,9 @@ class AchievementManager {
                 name: 'Perfect Day',
                 description: 'Sell all bottles in a single day',
                 unlocked: false,
-                icon: '✨'
+                icon: '✨',
+                progress: 0,
+                target: 1
             }
         };
         
@@ -189,29 +209,57 @@ class AchievementManager {
         if (!achievement || achievement.unlocked) return false;
 
         let shouldUnlock = false;
+        let newProgress = achievement.progress;
 
         switch (id) {
             case 'oneSelling':
-                shouldUnlock = extraData && extraData.bottlesSold === 1;
+                if (extraData && extraData.bottlesSold === 1) {
+                    newProgress = 1;
+                    shouldUnlock = true;
+                }
                 break;
             case 'firstProfit':
-                shouldUnlock = extraData && extraData.dayProfit > 0;
+                if (extraData && extraData.dayProfit > 0) {
+                    newProgress = 1;
+                    shouldUnlock = true;
+                }
                 break;
             case 'totalProfit':
-                shouldUnlock = gameState && gameState.totalProfit > 0;
+                if (gameState && gameState.totalProfit > 0) {
+                    newProgress = 1;
+                    shouldUnlock = true;
+                }
                 break;
             case 'survivor':
-                shouldUnlock = gameState && gameState.day >= 30;
+                if (gameState) {
+                    newProgress = gameState.day;
+                    shouldUnlock = gameState.day >= 30;
+                }
                 break;
             case 'profiteer':
-                shouldUnlock = gameState && gameState.consecutiveProfitDays >= 10;
+                if (gameState) {
+                    newProgress = gameState.consecutiveProfitDays;
+                    shouldUnlock = gameState.consecutiveProfitDays >= 10;
+                }
                 break;
             case 'bigSpender':
-                shouldUnlock = gameState && gameState.bottlesBought >= 50 && gameState.waterType === 'filtered';
+                if (gameState && gameState.waterType === 'filtered') {
+                    newProgress = gameState.bottlesBought;
+                    shouldUnlock = gameState.bottlesBought >= 50;
+                }
                 break;
             case 'perfectDay':
-                shouldUnlock = extraData && extraData.bottlesSold === extraData.totalBottles && extraData.totalBottles > 0;
+                if (extraData && extraData.bottlesSold === extraData.totalBottles && extraData.totalBottles > 0) {
+                    newProgress = 1;
+                    shouldUnlock = true;
+                }
                 break;
+        }
+
+        // Update progress
+        if (newProgress !== achievement.progress) {
+            achievement.progress = newProgress;
+            this.saveAchievements();
         }
 
         if (shouldUnlock) {
