@@ -94,6 +94,12 @@ async function typewriterText(text, speed = 50) {
     }
     isTyping = false;
     currentTypingElement = null;
+    
+    // Auto-scroll after typing is complete in type mode
+    setTimeout(() => {
+        paragraph.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+    
     await sleep(skipTyping ? 200 : 800); // Shorter pause if skipped
 }
 async function showText(text) {
