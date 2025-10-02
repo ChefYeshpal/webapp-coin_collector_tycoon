@@ -41,3 +41,11 @@ Also, this is kinda based off of a text-based game which I played when I was you
         - considering that the 2nd name is much more suitable in my opinion
     - Added link to github repo
 - 2 Oct 2025
+    - Added achievements
+        - Added counting systems
+        - Test functions for these achievements
+        - Baron -> Earl -> Viscount -> King (or something like that?)
+        - Maybe will add more features...
+    - Added step-by-step mode
+        - Added a button to switch
+        - Added autoscroll feature for both mode
