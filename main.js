@@ -16,6 +16,7 @@ let gameState = {
     totalCost: 0,
     consecutiveProfitDays: 0,
     consecutiveLossDays: 0,
+    totalRiverWaterBottlesSold: 0,
     inventory: {
         riverWaterBottles: 0,
         filteredWaterBottles: 0,
@@ -233,6 +234,12 @@ async function processWaterChoice(input) {
         gameState.inventory.riverWaterBottles += gameState.bottlesBought;
     }
     await typewriterText(`Money left: ₹${gameState.money.toFixed(2)}`, 40);
+    
+    // Check big spender achievement
+    if (window.achievementManager) {
+        window.achievementManager.checkPurchaseAchievements(gameState);
+    }
+    
     gameState.currentStep = GameStep.GO_TO_STATION;
     await goToStation();
 }
@@ -311,10 +318,13 @@ async function simulateSales() {
     const profit = revenue - gameState.totalCost;
     // Update inventory by removing sold bottles (prioritize river water first)
     let remainingSold = bottlesSold;
+    let riverWaterSold = 0;
     if (remainingSold > 0 && gameState.inventory.riverWaterBottles > 0) {
         const riverSold = Math.min(remainingSold, gameState.inventory.riverWaterBottles);
         gameState.inventory.riverWaterBottles -= riverSold;
         remainingSold -= riverSold;
+        riverWaterSold = riverSold;
+        gameState.totalRiverWaterBottlesSold += riverSold;
     }
     if (remainingSold > 0 && gameState.inventory.filteredWaterBottles > 0) {
         const filteredSold = Math.min(remainingSold, gameState.inventory.filteredWaterBottles);
@@ -335,6 +345,17 @@ async function simulateSales() {
         // Break-even resets both counters
         gameState.consecutiveProfitDays = 0;
         gameState.consecutiveLossDays = 0;
+    }
+    
+    // Check achievements with sales data
+    if (window.achievementManager) {
+        const salesData = {
+            bottlesSold: bottlesSold,
+            dayProfit: profit,
+            totalBottles: totalBottles,
+            riverWaterSold: riverWaterSold
+        };
+        window.achievementManager.checkSalesAchievements(gameState, salesData);
     }
     
     gameState.currentStep = GameStep.DAY_RESULTS;
@@ -445,6 +466,13 @@ async function endGame() {
     await typewriterText(`You played for ${gameState.day} day(s).`, 40);
     await typewriterText(`Final money: ₹${gameState.money.toFixed(2)}`, 40);
     await typewriterText(`Total profit earned: ₹${gameState.totalProfit.toFixed(2)}`, 40);
+    
+    // Show achievement progress
+    if (window.achievementManager) {
+        const unlocked = window.achievementManager.getUnlockedCount();
+        const total = window.achievementManager.getTotalCount();
+        await typewriterText(`Achievements unlocked: ${unlocked}/${total}`, 40);
+    }
     if (gameState.riverWaterUsage > 0) {
         await typewriterText(`You used river water ${gameState.riverWaterUsage} time(s). This may have affected your sales...`, 40);
     }
