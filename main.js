@@ -29,10 +29,13 @@ let storyTextElement;
 let inputSection;
 let userInput;
 let submitButton;
+let animationToggle;
+
 // Typewriter control variables
 let isTyping = false;
 let skipTyping = false;
 let currentTypingElement = null;
+let instantMode = false;
 // Game flow steps
 var GameStep;
 (function (GameStep) {
@@ -56,6 +59,14 @@ async function typewriterText(text, speed = 50) {
     const paragraph = document.createElement('div');
     paragraph.className = 'story-paragraph';
     storyTextElement.appendChild(paragraph);
+    
+    // If instant mode is enabled, show text immediately but with 1sec delay
+    if (instantMode) {
+        paragraph.textContent = text;
+        await sleep(1000); // 1 second pause between lines
+        return;
+    }
+    
     isTyping = true;
     currentTypingElement = paragraph;
     skipTyping = false;
@@ -104,6 +115,26 @@ function skipCurrentTyping() {
     if (isTyping && currentTypingElement) {
         skipTyping = true;
     }
+}
+
+function toggleAnimationMode() {
+    instantMode = !instantMode;
+    const toggleButton = document.getElementById('animation-toggle');
+    const toggleIcon = toggleButton.querySelector('.toggle-icon');
+    const toggleText = toggleButton.querySelector('.toggle-text');
+    
+    if (instantMode) {
+        toggleIcon.textContent = '📝';
+        toggleText.textContent = 'Step Mode';
+        toggleButton.title = 'Switch to typewriter animation';
+    } else {
+        toggleIcon.textContent = '⚡';
+        toggleText.textContent = 'Type Mode';
+        toggleButton.title = 'Switch to step-by-step text';
+    }
+    
+    // Save preference to localStorage
+    localStorage.setItem('waterBottleTycoon_instantMode', instantMode.toString());
 }
 async function showInventoryStatus() {
     const totalBottles = gameState.inventory.riverWaterBottles + gameState.inventory.filteredWaterBottles + gameState.inventory.emptyBottles;
@@ -526,6 +557,21 @@ function initGame() {
     inputSection = document.getElementById('input-section');
     userInput = document.getElementById('user-input');
     submitButton = document.getElementById('submit-button');
+    animationToggle = document.getElementById('animation-toggle');
+    
+    // Load saved animation preference
+    const savedInstantMode = localStorage.getItem('waterBottleTycoon_instantMode');
+    if (savedInstantMode === 'true') {
+        instantMode = true;
+        const toggleIcon = animationToggle.querySelector('.toggle-icon');
+        const toggleText = animationToggle.querySelector('.toggle-text');
+        toggleIcon.textContent = '📝';
+        toggleText.textContent = 'Step Mode';
+        animationToggle.title = 'Switch to typewriter animation';
+    } else {
+        animationToggle.title = 'Switch to step-by-step text';
+    }
+    
     // Event listeners
     submitButton.addEventListener('click', handleSubmit);
     userInput.addEventListener('keypress', (e) => {
@@ -533,6 +579,10 @@ function initGame() {
             handleSubmit();
         }
     });
+    
+    // Animation toggle event listener
+    animationToggle.addEventListener('click', toggleAnimationMode);
+    
     // Right-click to skip typing animation
     document.addEventListener('contextmenu', (e) => {
         if (isTyping) {
@@ -549,7 +599,7 @@ function initGame() {
     });
     // Also allow left-click to skip (optional)
     document.addEventListener('click', (e) => {
-        if (isTyping && e.target !== userInput && e.target !== submitButton) {
+        if (isTyping && e.target !== userInput && e.target !== submitButton && !animationToggle.contains(e.target)) {
             skipCurrentTyping();
         }
     });
