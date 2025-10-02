@@ -113,10 +113,18 @@ function showInput(placeholder = "Type your answer...") {
     userInput.placeholder = placeholder;
     userInput.value = '';
     inputSection.classList.remove('hidden');
-    userInput.focus();
+    // Small delay to ensure display is set, then trigger animation
+    setTimeout(() => {
+        inputSection.classList.add('show');
+        userInput.focus();
+    }, 50);
 }
 function hideInput() {
-    inputSection.classList.add('hidden');
+    inputSection.classList.remove('show');
+    // Wait for animation to complete before hiding
+    setTimeout(() => {
+        inputSection.classList.add('hidden');
+    }, 400);
 }
 function clearStory() {
     storyTextElement.innerHTML = '';
