@@ -63,6 +63,10 @@ async function typewriterText(text, speed = 50) {
     // If instant mode is enabled, show text immediately but with 1sec delay
     if (instantMode) {
         paragraph.textContent = text;
+        // Auto-scroll to the new paragraph in step mode - scroll down more
+        setTimeout(() => {
+            paragraph.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 50); // Small delay to ensure text is rendered
         await sleep(1000); // 1 second pause between lines
         return;
     }
