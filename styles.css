@@ -154,6 +154,70 @@ body {
   border-radius: 10px;
 }
 
+/* Achievement System Styles */
+.achievement-notifications {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.achievement-notification {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
+  width: 280px;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s ease;
+  font-family: 'Courier Prime', monospace;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.achievement-notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.achievement-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.achievement-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.achievement-title {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.achievement-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #e0e0e0;
+  margin-bottom: 4px;
+}
+
+.achievement-desc {
+  font-size: 12px;
+  color: #bbb;
+  line-height: 1.4;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 600px) {
   .container {
@@ -171,5 +235,15 @@ body {
   
   #submit-button {
     margin-top: 10px;
+  }
+
+  .achievement-notifications {
+    top: 10px;
+    right: 10px;
+  }
+
+  .achievement-notification {
+    width: calc(100vw - 40px);
+    max-width: 280px;
   }
 }
