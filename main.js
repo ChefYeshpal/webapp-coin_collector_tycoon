@@ -16,10 +16,6 @@ let gameState = {
     totalCost: 0,
     consecutiveProfitDays: 0,
     consecutiveLossDays: 0,
-    previousConsecutiveLossDays: 0,
-    previousTotalProfit: 0,
-    wasInLossStreak: false,
-    totalRiverWaterBottlesSold: 0,
     inventory: {
         riverWaterBottles: 0,
         filteredWaterBottles: 0,
@@ -187,11 +183,6 @@ async function processBuyBottles(input) {
     hideInput();
     await typewriterText(`You bought ${bottles} empty bottles for ₹${(bottles * BOTTLE_COST).toFixed(2)}.`, 40);
     await typewriterText(`You have ₹${gameState.money.toFixed(2)} left.`, 40);
-    
-    // Check achievements
-    if (window.achievementManager) {
-        window.achievementManager.checkAllAchievements(gameState);
-    }
     gameState.currentStep = GameStep.CHOOSE_WATER;
     await askWaterChoice();
 }
@@ -280,11 +271,6 @@ async function processSellingPrice(input) {
     hideInput();
     await typewriterText(`You set the price at ₹${price} per bottle.`, 40);
     await typewriterText("Time to start selling!", 40);
-    
-    // Check price-related achievements
-    if (window.achievementManager) {
-        window.achievementManager.checkAllAchievements(gameState);
-    }
     gameState.currentStep = GameStep.SELLING;
     await startSelling();
 }
@@ -336,15 +322,9 @@ async function simulateSales() {
     }
     // Update game state
     gameState.money += revenue;
-    gameState.previousTotalProfit = gameState.totalProfit;
     gameState.totalProfit += profit;
     
-    // Track river water bottles sold for achievements
-    const riverSold = Math.min(bottlesSold, gameState.inventory.riverWaterBottles + (gameState.bottlesBought - gameState.inventory.filteredWaterBottles));
-    gameState.totalRiverWaterBottlesSold += riverSold;
-    
     // Track consecutive profit/loss days
-    gameState.previousConsecutiveLossDays = gameState.consecutiveLossDays;
     if (profit > 0) {
         gameState.consecutiveProfitDays++;
         gameState.consecutiveLossDays = 0;
@@ -355,18 +335,6 @@ async function simulateSales() {
         // Break-even resets both counters
         gameState.consecutiveProfitDays = 0;
         gameState.consecutiveLossDays = 0;
-    }
-    
-    // Check achievements
-    if (window.achievementManager) {
-        // Update river water progress
-        window.achievementManager.updateProgress('riverWaterBaron', riverSold);
-        
-        // Check perfect day
-        window.achievementManager.checkPerfectDay(bottlesSold, totalBottles);
-        
-        // Check all other achievements
-        window.achievementManager.checkAllAchievements(gameState);
     }
     
     gameState.currentStep = GameStep.DAY_RESULTS;
@@ -450,11 +418,6 @@ async function processNextDay(input) {
         gameState.waterType = '';
         gameState.totalCost = 0;
         
-        // Check achievements for new day
-        if (window.achievementManager) {
-            window.achievementManager.checkAllAchievements(gameState);
-        }
-        
         await typewriterText(`=== Day ${gameState.day} ===`, 80);
         if (bonusMoney > 0) {
             await typewriterText(bonusMessage, 40);
@@ -482,13 +445,6 @@ async function endGame() {
     await typewriterText(`You played for ${gameState.day} day(s).`, 40);
     await typewriterText(`Final money: ₹${gameState.money.toFixed(2)}`, 40);
     await typewriterText(`Total profit earned: ₹${gameState.totalProfit.toFixed(2)}`, 40);
-    
-    // Show achievement progress
-    if (window.achievementManager) {
-        const unlocked = window.achievementManager.getUnlockedCount();
-        const total = window.achievementManager.getTotalCount();
-        await typewriterText(`Achievements unlocked: ${unlocked}/${total}`, 40);
-    }
     if (gameState.riverWaterUsage > 0) {
         await typewriterText(`You used river water ${gameState.riverWaterUsage} time(s). This may have affected your sales...`, 40);
     }

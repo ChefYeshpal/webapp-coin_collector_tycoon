@@ -40,3 +40,4 @@ Also, this is kinda based off of a text-based game which I played when I was you
     - Changed the name of the project, from ```webapp-coin_collector_tycoon``` to ```webapp-moneymaker```
         - considering that the 2nd name is much more suitable in my opinion
     - Added link to github repo
+- 2 Oct 2025
