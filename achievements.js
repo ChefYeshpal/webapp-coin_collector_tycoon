@@ -32,6 +32,87 @@ class AchievementManager {
                 progress: 0,
                 target: 100
             },
+            riverWaterViscount: {
+                id: 'riverWaterViscount',
+                name: 'River Water Viscount',
+                description: 'Sell 300 river water bottles',
+                unlocked: false,
+                icon: '🌊',
+                progress: 0,
+                target: 300
+            },
+            riverWaterEarl: {
+                id: 'riverWaterEarl',
+                name: 'River Water Earl',
+                description: 'Sell 700 river water bottles',
+                unlocked: false,
+                icon: '🌊',
+                progress: 0,
+                target: 700
+            },
+            riverWaterDuke: {
+                id: 'riverWaterDuke',
+                name: 'River Water Duke',
+                description: 'Sell 1000 river water bottles',
+                unlocked: false,
+                icon: '🌊',
+                progress: 0,
+                target: 1000
+            },
+            riverWaterKing: {
+                id: 'riverWaterKing',
+                name: 'River Water King',
+                description: 'Sell 1500 river water bottles',
+                unlocked: false,
+                icon: '🌊',
+                progress: 0,
+                target: 1500
+            },
+            filteredWaterBaron: {
+                id: 'filteredWaterBaron',
+                name: 'Filtered Water Baron',
+                description: 'Sell 100 filtered water bottles',
+                unlocked: false,
+                icon: '💧',
+                progress: 0,
+                target: 100
+            },
+            filteredWaterViscount: {
+                id: 'filteredWaterViscount',
+                name: 'Filtered Water Viscount',
+                description: 'Sell 300 filtered water bottles',
+                unlocked: false,
+                icon: '💧',
+                progress: 0,
+                target: 300
+            },
+            filteredWaterEarl: {
+                id: 'filteredWaterEarl',
+                name: 'Filtered Water Earl',
+                description: 'Sell 700 filtered water bottles',
+                unlocked: false,
+                icon: '💧',
+                progress: 0,
+                target: 700
+            },
+            filteredWaterDuke: {
+                id: 'filteredWaterDuke',
+                name: 'Filtered Water Duke',
+                description: 'Sell 1000 filtered water bottles',
+                unlocked: false,
+                icon: '💧',
+                progress: 0,
+                target: 1000
+            },
+            filteredWaterKing: {
+                id: 'filteredWaterKing',
+                name: 'Filtered Water King',
+                description: 'Sell 1500 filtered water bottles',
+                unlocked: false,
+                icon: '💧',
+                progress: 0,
+                target: 1500
+            },
             survivor: {
                 id: 'survivor',
                 name: 'Survivor',
@@ -141,15 +222,53 @@ class AchievementManager {
     }
 
     updateRiverWaterProgress(amount) {
-        const achievement = this.achievements.riverWaterBaron;
-        if (!achievement.unlocked) {
-            achievement.progress += amount;
-            
-            if (achievement.progress >= achievement.target) {
-                this.unlockAchievement('riverWaterBaron');
+        // List of all river water achievements in order
+        const riverWaterAchievements = [
+            'riverWaterBaron',
+            'riverWaterViscount', 
+            'riverWaterEarl',
+            'riverWaterDuke',
+            'riverWaterKing'
+        ];
+        
+        // Update progress for all river water achievements
+        riverWaterAchievements.forEach(id => {
+            const achievement = this.achievements[id];
+            if (achievement && !achievement.unlocked) {
+                achievement.progress += amount;
+                
+                if (achievement.progress >= achievement.target) {
+                    this.unlockAchievement(id);
+                }
             }
-            this.saveAchievements();
-        }
+        });
+        
+        this.saveAchievements();
+    }
+
+    updateFilteredWaterProgress(amount) {
+        // List of all filtered water achievements in order
+        const filteredWaterAchievements = [
+            'filteredWaterBaron',
+            'filteredWaterViscount', 
+            'filteredWaterEarl',
+            'filteredWaterDuke',
+            'filteredWaterKing'
+        ];
+        
+        // Update progress for all filtered water achievements
+        filteredWaterAchievements.forEach(id => {
+            const achievement = this.achievements[id];
+            if (achievement && !achievement.unlocked) {
+                achievement.progress += amount;
+                
+                if (achievement.progress >= achievement.target) {
+                    this.unlockAchievement(id);
+                }
+            }
+        });
+        
+        this.saveAchievements();
     }
 
     unlockAchievement(id) {
@@ -207,6 +326,11 @@ class AchievementManager {
         // Update river water progress if applicable
         if (salesData.riverWaterSold > 0) {
             this.updateRiverWaterProgress(salesData.riverWaterSold);
+        }
+        
+        // Update filtered water progress if applicable
+        if (salesData.filteredWaterSold > 0) {
+            this.updateFilteredWaterProgress(salesData.filteredWaterSold);
         }
         
         // Check other achievements
@@ -306,6 +430,11 @@ window.testAchievements = {
         riverWaterBaron: () => {
             window.achievementManager.updateRiverWaterProgress(100);
             console.log('🧪 Tested river water baron');
+        },
+
+        filteredWaterBaron: () => {
+            window.achievementManager.updateFilteredWaterProgress(100);
+            console.log('🧪 Tested filtered water baron');
         },
 
         testAll: () => {

@@ -17,6 +17,7 @@ let gameState = {
     consecutiveProfitDays: 0,
     consecutiveLossDays: 0,
     totalRiverWaterBottlesSold: 0,
+    totalFilteredWaterBottlesSold: 0,
     inventory: {
         riverWaterBottles: 0,
         filteredWaterBottles: 0,
@@ -319,6 +320,7 @@ async function simulateSales() {
     // Update inventory by removing sold bottles (prioritize river water first)
     let remainingSold = bottlesSold;
     let riverWaterSold = 0;
+    let filteredWaterSold = 0;
     if (remainingSold > 0 && gameState.inventory.riverWaterBottles > 0) {
         const riverSold = Math.min(remainingSold, gameState.inventory.riverWaterBottles);
         gameState.inventory.riverWaterBottles -= riverSold;
@@ -329,6 +331,8 @@ async function simulateSales() {
     if (remainingSold > 0 && gameState.inventory.filteredWaterBottles > 0) {
         const filteredSold = Math.min(remainingSold, gameState.inventory.filteredWaterBottles);
         gameState.inventory.filteredWaterBottles -= filteredSold;
+        filteredWaterSold = filteredSold;
+        gameState.totalFilteredWaterBottlesSold += filteredSold;
     }
     // Update game state
     gameState.money += revenue;
@@ -353,7 +357,8 @@ async function simulateSales() {
             bottlesSold: bottlesSold,
             dayProfit: profit,
             totalBottles: totalBottles,
-            riverWaterSold: riverWaterSold
+            riverWaterSold: riverWaterSold,
+            filteredWaterSold: filteredWaterSold
         };
         window.achievementManager.checkSalesAchievements(gameState, salesData);
     }
