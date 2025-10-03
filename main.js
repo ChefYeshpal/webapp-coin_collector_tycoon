@@ -585,9 +585,9 @@ function initGame() {
         const toggleText = animationToggle.querySelector('.toggle-text');
         toggleIcon.textContent = '⏱️';
         toggleText.textContent = 'Step Mode';
-        animationToggle.title = 'Switch to typewriter animation';
+        animationToggle.title = 'Switch to typewriter animation (word by word)';
     } else {
-        animationToggle.title = 'Switch to step-by-step text';
+        animationToggle.title = 'Switch to step-by-step text (line by line)';
     }
     
     // Event listeners
