@@ -707,6 +707,29 @@ function initGame() {
             skipCurrentTyping();
         }
     });
+    // Konami code listener: Up Up Down Down Left Right Left Right B A
+    // Ignored when typing into input fields to avoid accidental triggers
+    const konamiSequence = ['arrowup','arrowup','arrowdown','arrowdown','arrowleft','arrowright','arrowleft','arrowright','b','a'];
+    let konamiIndex = 0;
+    document.addEventListener('keydown', (e) => {
+        // Don't trigger while user is typing into input/textarea
+        const targetTag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : null;
+        if (targetTag === 'input' || targetTag === 'textarea') return;
+
+        const key = e.key.toLowerCase();
+        if (key === konamiSequence[konamiIndex]) {
+            konamiIndex++;
+            if (konamiIndex === konamiSequence.length) {
+                // Full sequence entered — redirect to the requested link
+                console.log('Konami code entered — redirecting...');
+                window.location.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+            }
+        }
+        else {
+            // If the current key matches the first sequence key, start at 1, otherwise reset
+            konamiIndex = (key === konamiSequence[0]) ? 1 : 0;
+        }
+    });
     // Start the game
     startIntro();
 }
