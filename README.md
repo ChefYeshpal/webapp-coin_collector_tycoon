@@ -51,3 +51,4 @@ Also, this is kinda based off of a text-based game which I played when I was you
         - Added autoscroll feature for both mode
     - Added a lil animation for text
         - Now it pops up from under, instead of appearing like houdini
+- 3 Oct 2025
