@@ -924,4 +924,6 @@ window.testReputation = {
         console.log('window.testReputation.testWaterChoice.reputationDecline() - Simulate decline');
         console.log('window.testReputation.help() - Show this help');
     }
+    }
 };
+// End of file
