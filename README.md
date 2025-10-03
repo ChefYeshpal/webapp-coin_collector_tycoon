@@ -56,6 +56,11 @@ Also, this is kinda based off of a text-based game which I played when I was you
         - Now it pops up from under, instead of appearing like houdini
 - 3 Oct 2025
     - Trying to add easter eggs...
+        - Added the kunami code easter egg
     - Added a reputation system
         - Sell river water your rep goes down, so does your sales
         - Sell filter water, your rep goes up, and so does your sales
+    - A few more achievements added
+        - profit 50k to get one
+        - Lose 50k to get the other
+        - Both of these should be a little difficult to get, I dont think anybody'll even use this game for that long...
