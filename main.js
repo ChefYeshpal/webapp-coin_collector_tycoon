@@ -320,37 +320,14 @@ async function askWaterChoice() {
 }
 async function processWaterChoice(input) {
     const choice = input.toLowerCase().trim();
+    
     // Check for filtered water options
     if (choice === 'filtered' || choice === 'filter' || choice === '1') {
         gameState.waterType = 'filtered';
-        hideInput();
-        updateReputation(gameState.waterType);
-        // Bulk discount logic
-        if (gameState.bottlesBought >= 300) {
-            // Prompt for bulk discount
-            gameState.currentStep = 'bulk_discount';
-            await typewriterText("You qualify for a bulk discount! You can buy filtered water for ₹1 per bottle instead of ₹3.", 40);
-            await typewriterText("Do you want to use the bulk discount? (y/n)", 40);
-            showInput("Type 'y' for discount, 'n' for normal price");
-            return;
-        } else {
-            // Normal filtered water purchase
-            const waterCost = gameState.bottlesBought * FILTERED_WATER_COST;
-            gameState.money -= waterCost;
-            gameState.totalCost += waterCost;
-            await typewriterText(`You chose filtered water and paid ₹${waterCost.toFixed(2)}.`, 40);
-            gameState.inventory.filteredWaterBottles += gameState.bottlesBought;
-        }
     }
     // Check for river water options
     else if (choice === 'river' || choice === '2') {
         gameState.waterType = 'river';
-        hideInput();
-        updateReputation(gameState.waterType);
-        gameState.riverWaterUsage++;
-        await typewriterText("You chose river water - it's free!", 40);
-        await typewriterText("You fill your bottles from the nearby river.", 40);
-        gameState.inventory.riverWaterBottles += gameState.bottlesBought;
     }
     // Invalid input
     else {
@@ -358,39 +335,33 @@ async function processWaterChoice(input) {
         showInput("Type 'filtered'/'filter'/'1' or 'river'/'2'");
         return;
     }
-    // Show reputation status if applicable
-    showReputationStatus();
-    await typewriterText(`Money left: ₹${gameState.money.toFixed(2)}`, 40);
+    
+    hideInput();
+    
+    // Update reputation system based on water choice
+    updateReputation(gameState.waterType);
+    
+    if (gameState.waterType === 'filtered') {
+        const waterCost = gameState.bottlesBought * FILTERED_WATER_COST;
+        gameState.money -= waterCost;
+        gameState.totalCost += waterCost;
+        await typewriterText(`You chose filtered water and paid ₹${waterCost.toFixed(2)}.`, 40);
+        gameState.inventory.filteredWaterBottles += gameState.bottlesBought;
+    }
+    else {
+        gameState.riverWaterUsage++;
+        await typewriterText("You chose river water - it's free!", 40);
+        await typewriterText("You fill your bottles from the nearby river.", 40);
+        gameState.inventory.riverWaterBottles += gameState.bottlesBought;
+    }
+    
+    // Show reputation status if applicable\n    showReputationStatus();\n    await typewriterText(`Money left: ₹${gameState.money.toFixed(2)}`, 40);
+    
     // Check big spender achievement
     if (window.achievementManager) {
         window.achievementManager.checkPurchaseAchievements(gameState);
     }
-    gameState.currentStep = GameStep.GO_TO_STATION;
-    await goToStation();
-// Handle bulk discount response
-async function processBulkDiscount(input) {
-    const answer = input.toLowerCase().trim();
-    hideInput();
-    let waterCost;
-    if (answer === 'y' || answer === 'yes') {
-        waterCost = gameState.bottlesBought * 1;
-        await typewriterText(`You chose the bulk discount and paid ₹${waterCost.toFixed(2)} for filtered water.`, 40);
-    } else if (answer === 'n' || answer === 'no') {
-        waterCost = gameState.bottlesBought * FILTERED_WATER_COST;
-        await typewriterText(`You chose the regular price and paid ₹${waterCost.toFixed(2)} for filtered water.`, 40);
-    } else {
-        await typewriterText("Please type 'y' for discount or 'n' for normal price.", 40);
-        showInput("Type 'y' for discount, 'n' for normal price");
-        return;
-    }
-    gameState.money -= waterCost;
-    gameState.totalCost += waterCost;
-    gameState.inventory.filteredWaterBottles += gameState.bottlesBought;
-    showReputationStatus();
-    await typewriterText(`Money left: ₹${gameState.money.toFixed(2)}`, 40);
-    if (window.achievementManager) {
-        window.achievementManager.checkPurchaseAchievements(gameState);
-    }
+    
     gameState.currentStep = GameStep.GO_TO_STATION;
     await goToStation();
 }
@@ -676,9 +647,6 @@ function handleSubmit() {
         case GameStep.CHOOSE_WATER:
             processWaterChoice(input);
             break;
-        case 'bulk_discount':
-            processBulkDiscount(input);
-            break;
         case GameStep.SET_PRICE:
             processSellingPrice(input);
             break;
@@ -924,6 +892,4 @@ window.testReputation = {
         console.log('window.testReputation.testWaterChoice.reputationDecline() - Simulate decline');
         console.log('window.testReputation.help() - Show this help');
     }
-    }
 };
-// End of file
