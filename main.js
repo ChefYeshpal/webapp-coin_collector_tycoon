@@ -714,14 +714,14 @@ function initGame() {
         // Handle Konami code (only when not typing in input)
         if (!isTypingInInput) {
             const key = e.key.toLowerCase();
-            console.log(`Konami debug: key="${key}", index=${konamiIndex}, expected="${konamiSequence[konamiIndex]}"`);
+            console.log(`easter.k debug: key="${key}", index=${konamiIndex}, expected="${konamiSequence[konamiIndex]}"`);
             
             if (key === konamiSequence[konamiIndex]) {
                 konamiIndex++;
-                console.log(`Konami progress: ${konamiIndex}/${konamiSequence.length}`);
+                console.log(`easter.k progress: ${konamiIndex}/${konamiSequence.length}`);
                 if (konamiIndex === konamiSequence.length) {
                     // Full sequence entered — open link in new tab
-                    console.log('Konami code entered - opening in new tab...');
+                    console.log('easter.k code entered - opening in new tab...');
                     window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
                 }
             }
@@ -729,7 +729,7 @@ function initGame() {
                 // If the current key matches the first sequence key, start at 1, otherwise reset
                 konamiIndex = (key === konamiSequence[0]) ? 1 : 0;
                 if (konamiIndex > 0) {
-                    console.log(`Konami reset but restarted: key="${key}" matches first key`);
+                    console.log(`easter.k reset but restarted: key="${key}" matches first key`);
                 }
             }
         }
