@@ -1,9 +1,11 @@
 # webapp-moneymaker
+
 This is a continuation of a really old project of mine (more like a repository for python) where I basically made a super simple python program in which the user is a beggar, who needs to refill water bottles and sell them at some price. I think I didn't continue it cause I couldn't understand how to add a proper loop statement in the code (for the repeating days) but anyways, I've decided to pick it back up, ofc in JavaScript.
 
 Also, this is kinda based off of a text-based game which I played when I was younger, can you figure out what it is?
 
 ## Things I wanted to add
+
 - Different locations
     - Railway station (here, cheaper water bottle = more sales)
     - Museum (eh, it's there)
@@ -18,6 +20,7 @@ Also, this is kinda based off of a text-based game which I played when I was you
 
 
 ## Devlogs
+
 - 30 Sept 2025
     - Created repository
     - Tried a more "coin collector tycoon" type of thing, I didn't see it having any special or unique qualities so just deleted it all after like... 45 mins of work?
@@ -52,3 +55,4 @@ Also, this is kinda based off of a text-based game which I played when I was you
     - Added a lil animation for text
         - Now it pops up from under, instead of appearing like houdini
 - 3 Oct 2025
+    - Trying to add easter eggs...

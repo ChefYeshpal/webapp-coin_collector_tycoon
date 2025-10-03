@@ -18,6 +18,11 @@ let gameState = {
     consecutiveLossDays: 0,
     totalRiverWaterBottlesSold: 0,
     totalFilteredWaterBottlesSold: 0,
+    // Reputation system for filtered water quality
+    consecutiveFilteredDays: 0,
+    consecutiveRiverDays: 0,
+    reputationBonus: 0, // Percentage bonus for sales (0-30%)
+    lastWaterType: '', // Track previous day's water type
     inventory: {
         riverWaterBottles: 0,
         filteredWaterBottles: 0,
@@ -132,6 +137,43 @@ function clearStory() {
 function skipCurrentTyping() {
     if (isTyping && currentTypingElement) {
         skipTyping = true;
+    }
+}
+
+// Reputation system functions
+function updateReputation(currentWaterType) {
+    // Update consecutive day counters
+    if (currentWaterType === 'filtered') {
+        gameState.consecutiveFilteredDays++;
+        gameState.consecutiveRiverDays = 0;
+    } else if (currentWaterType === 'river') {
+        gameState.consecutiveRiverDays++;
+        gameState.consecutiveFilteredDays = 0;
+    }
+    
+    // Calculate reputation bonus (starts after 5 consecutive days of filtered water)
+    if (gameState.consecutiveFilteredDays >= 5) {
+        // Increase bonus by 2% per day after day 5, max 30%
+        const bonusDays = gameState.consecutiveFilteredDays - 4;
+        gameState.reputationBonus = Math.min(30, bonusDays * 2);
+    } else if (gameState.consecutiveRiverDays >= 1) {
+        // Decrease bonus by 3% per day of river water usage
+        gameState.reputationBonus = Math.max(0, gameState.reputationBonus - (gameState.consecutiveRiverDays * 3));
+    }
+    
+    gameState.lastWaterType = currentWaterType;
+}
+
+async function showReputationStatus() {
+    if (gameState.day >= 2) { // Only show from day 2 onwards
+        if (gameState.consecutiveFilteredDays >= 5) {
+            await typewriterText(`🌟 Quality Reputation: ${gameState.reputationBonus}% sales boost from ${gameState.consecutiveFilteredDays} days of filtered water!`, 35);
+        } else if (gameState.consecutiveFilteredDays >= 3) {
+            const daysLeft = 5 - gameState.consecutiveFilteredDays;
+            await typewriterText(`📈 Building reputation... ${daysLeft} more days of filtered water for sales boost!`, 35);
+        } else if (gameState.reputationBonus > 0 && gameState.consecutiveRiverDays >= 1) {
+            await typewriterText(`📉 Reputation declining... Lost ${gameState.consecutiveRiverDays * 3}% from using river water (${gameState.reputationBonus}% remaining)`, 35);
+        }
     }
 }
 
@@ -270,6 +312,10 @@ async function processWaterChoice(input) {
     }
     
     hideInput();
+    
+    // Update reputation system based on water choice
+    updateReputation(gameState.waterType);
+    
     if (gameState.waterType === 'filtered') {
         const waterCost = gameState.bottlesBought * FILTERED_WATER_COST;
         gameState.money -= waterCost;
@@ -283,6 +329,9 @@ async function processWaterChoice(input) {
         await typewriterText("You fill your bottles from the nearby river.", 40);
         gameState.inventory.riverWaterBottles += gameState.bottlesBought;
     }
+    
+    // Show reputation status if applicable
+    await showReputationStatus();
     await typewriterText(`Money left: ₹${gameState.money.toFixed(2)}`, 40);
     
     // Check big spender achievement
@@ -360,6 +409,11 @@ async function simulateSales() {
         const penalty = Math.min(0.3, gameState.riverWaterUsage * 0.1); // Max 30% penalty
         salesMultiplier *= (1 - penalty);
     }
+    
+    // Apply reputation bonus from filtered water consistency
+    const reputationMultiplier = 1 + (gameState.reputationBonus / 100);
+    salesMultiplier *= reputationMultiplier;
+    
     // Add some randomness
     const randomFactor = 0.7 + Math.random() * 0.6; // 0.7 to 1.3
     const actualSalesRate = Math.min(1, salesMultiplier * randomFactor);
@@ -436,6 +490,16 @@ async function showDayResults(bottlesSold, revenue, profit) {
     await sleep(1000);
     await typewriterText(`Money in pocket: ₹${gameState.money.toFixed(2)}`, 40);
     await typewriterText(`Total profit so far: ₹${gameState.totalProfit.toFixed(2)}`, 40);
+    
+    // Show reputation status if relevant
+    if (gameState.reputationBonus > 0) {
+        await typewriterText(`🌟 Quality reputation bonus: +${gameState.reputationBonus}% sales`, 35);
+    }
+    if (gameState.consecutiveFilteredDays >= 3 && gameState.consecutiveFilteredDays < 5) {
+        const daysLeft = 5 - gameState.consecutiveFilteredDays;
+        await typewriterText(`📈 ${daysLeft} more filtered water days for reputation boost!`, 35);
+    }
+    
     const remainingBottles = gameState.inventory.riverWaterBottles + gameState.inventory.filteredWaterBottles;
     if (remainingBottles > 0) {
         await typewriterText(`Unsold bottles: ${remainingBottles}`, 40);
@@ -529,6 +593,14 @@ async function endGame() {
     }
     if (gameState.riverWaterUsage > 0) {
         await typewriterText(`You used river water ${gameState.riverWaterUsage} time(s). This may have affected your sales...`, 40);
+    }
+    if (gameState.reputationBonus > 0) {
+        await typewriterText(`🌟 You built a quality reputation with ${gameState.reputationBonus}% sales bonus!`, 40);
+    }
+    const maxStreak = Math.max(gameState.consecutiveFilteredDays, gameState.consecutiveRiverDays);
+    if (maxStreak >= 5) {
+        const waterType = gameState.consecutiveFilteredDays > gameState.consecutiveRiverDays ? 'filtered' : 'river';
+        await typewriterText(`Longest streak: ${maxStreak} days of ${waterType} water`, 40);
     }
     if (gameState.totalProfit > 0) {
         await typewriterText("Congratulations! You're a successful water bottle entrepreneur!", 40);
