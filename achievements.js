@@ -1,7 +1,7 @@
 // Achievement System
 class AchievementManager {
     constructor() {
-        this.achievements = {
+    this.achievements = {
             oneSelling: {
                 bigSpender: {
                 id: 'bigSpender',
@@ -187,6 +187,24 @@ class AchievementManager {
                 icon: '🏆',
                 progress: 0,
                 target: 30
+            },
+            moneyMagnet: {
+                id: 'moneyMagnet',
+                name: 'Money Magnet',
+                description: 'Reach a total profit of ₹50,000',
+                unlocked: false,
+                icon: '🤑',
+                progress: 0,
+                target: 50000
+            },
+            drenchedInDebt: {
+                id: 'drenchedInDebt',
+                name: 'Drenched in Debt',
+                description: 'Fall to -₹50,000 total profit',
+                unlocked: false,
+                icon: '💸',
+                progress: 0,
+                target: -50000
             }
         };
         
@@ -238,7 +256,7 @@ class AchievementManager {
         let shouldUnlock = false;
         let newProgress = achievement.progress;
 
-        switch (id) {
+    switch (id) {
             case 'oneSelling':
                 if (extraData && extraData.bottlesSold === 1) {
                     newProgress = 1;
@@ -297,6 +315,18 @@ class AchievementManager {
                 if (gameState && gameState.reputationBonus) {
                     newProgress = gameState.reputationBonus;
                     shouldUnlock = gameState.reputationBonus >= 30;
+                }
+                break;
+            case 'moneyMagnet':
+                if (gameState) {
+                    newProgress = gameState.totalProfit;
+                    shouldUnlock = gameState.totalProfit >= 50000;
+                }
+                break;
+            case 'drenchedInDebt':
+                if (gameState) {
+                    newProgress = gameState.totalProfit;
+                    shouldUnlock = gameState.totalProfit <= -50000;
                 }
                 break;
         }
@@ -435,10 +465,13 @@ class AchievementManager {
         this.checkAchievement('survivor', gameState);
         this.checkAchievement('profiteer', gameState);
         
-        // Check reputation achievements
-        this.checkAchievement('qualityBuilder', gameState);
-        this.checkAchievement('reputationMaster', gameState);
-        this.checkAchievement('trustedBrand', gameState);
+    // Check reputation achievements
+    this.checkAchievement('qualityBuilder', gameState);
+    this.checkAchievement('reputationMaster', gameState);
+    this.checkAchievement('trustedBrand', gameState);
+    // Check new profit achievements
+    this.checkAchievement('moneyMagnet', gameState);
+    this.checkAchievement('drenchedInDebt', gameState);
     }
 
     // Check achievements after buying bottles
