@@ -160,6 +160,33 @@ class AchievementManager {
                 icon: '✨',
                 progress: 0,
                 target: 1
+            },
+            qualityBuilder: {
+                id: 'qualityBuilder',
+                name: 'Quality Builder',
+                description: 'Use filtered water for 5 consecutive days',
+                unlocked: false,
+                icon: '🏗️',
+                progress: 0,
+                target: 5
+            },
+            reputationMaster: {
+                id: 'reputationMaster',
+                name: 'Reputation Master',
+                description: 'Reach 20% reputation bonus',
+                unlocked: false,
+                icon: '👑',
+                progress: 0,
+                target: 20
+            },
+            trustedBrand: {
+                id: 'trustedBrand',
+                name: 'Trusted Brand',
+                description: 'Maintain 30% reputation bonus',
+                unlocked: false,
+                icon: '🏆',
+                progress: 0,
+                target: 30
             }
         };
         
@@ -252,6 +279,24 @@ class AchievementManager {
                 if (extraData && extraData.bottlesSold === extraData.totalBottles && extraData.totalBottles > 0) {
                     newProgress = 1;
                     shouldUnlock = true;
+                }
+                break;
+            case 'qualityBuilder':
+                if (gameState && gameState.consecutiveFilteredDays) {
+                    newProgress = gameState.consecutiveFilteredDays;
+                    shouldUnlock = gameState.consecutiveFilteredDays >= 5;
+                }
+                break;
+            case 'reputationMaster':
+                if (gameState && gameState.reputationBonus) {
+                    newProgress = gameState.reputationBonus;
+                    shouldUnlock = gameState.reputationBonus >= 20;
+                }
+                break;
+            case 'trustedBrand':
+                if (gameState && gameState.reputationBonus) {
+                    newProgress = gameState.reputationBonus;
+                    shouldUnlock = gameState.reputationBonus >= 30;
                 }
                 break;
         }
@@ -385,6 +430,11 @@ class AchievementManager {
         this.checkAchievement('totalProfit', gameState);
         this.checkAchievement('survivor', gameState);
         this.checkAchievement('profiteer', gameState);
+        
+        // Check reputation achievements
+        this.checkAchievement('qualityBuilder', gameState);
+        this.checkAchievement('reputationMaster', gameState);
+        this.checkAchievement('trustedBrand', gameState);
     }
 
     // Check achievements after buying bottles
