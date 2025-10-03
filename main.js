@@ -648,56 +648,65 @@ document.addEventListener("keydown", (event) => {
 });
 
 function triggerKonamiEasterEgg() {
-    // Konami-end-game scene
-    const message = `
-    <div id="konami-endgame" style="
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    ">
-    <h1>Well hello there...</h1>
-    <p>It seems you know this little trick of the konami code, hm?</p>
-    <p>Here's a little something special for you!</p>
-    <img src="https://media.giphy.com/media/3o6Zt481isNVuQI1l6/giphy.gif" alt="Konami Dance" style="max-width: 80%; height: auto; border-radius: 10px; margin: 20px 0;">
-    <p>Considering I wanted to add something nice, here's also a few trillion dollars!</p>
-    <button id="close-konami" style="
-        margin-top: 20px;
-        padding: 10px 20px;
-        font-size: 16px;
-        background: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    ">Claim your reward</button>
-    </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', message);
+    // Reset the page like a new day
+    resetPage();
 
-    // Event listener for the konami message and reward
-    document.getElementById("close-konami").addEventListener("click", () => {
+    // Define the Konami message
+    const konamiMessage = [
+        "Well hello there...",
+        "It seems you know this little trick of the Konami code, hm?",
+        "Considering I wanted to add something nice, here's also a few trillion dollars!"
+    ];
+
+    // Type out the message step by step
+    typeMessage(konamiMessage, () => {
+        // After the message is typed, give the reward
         giveTrillionsOfDollars();
     });
 }
 
-function giveTrillionsOfDollars() {
-    // Add that money into user's account
-    const trillions = 1_000_000_000_000;
-    const inrConversionRate = 83;
-    const inrAmount = trillions * inrConversionRate;
+function resetPage() {
+    // Clear the game area or reset relevant elements
+    const gameArea = document.getElementById("game-area"); // Assuming there's a game area
+    if (gameArea) {
+        gameArea.innerHTML = ""; // Clear the content
+    }
+}
 
-    alert(`You just recieved ₹${inrAmount.toLocaleString()}! Enjoy your newfound wealth!`);
+function typeMessage(messages, callback) {
+    let index = 0;
+
+    function typeNext() {
+        if (index < messages.length) {
+            const message = messages[index];
+            displayMessage(message, () => {
+                index++;
+                typeNext();
+            });
+        } else if (callback) {
+            callback();
+        }
+    }
+
+    typeNext();
+}
+
+function displayMessage(message, callback) {
+    // Simulate typing effect for the message
+    const output = document.getElementById("output"); // Assuming there's an output area
+    if (output) {
+        let charIndex = 0;
+        const interval = setInterval(() => {
+            if (charIndex < message.length) {
+                output.textContent += message[charIndex];
+                charIndex++;
+            } else {
+                clearInterval(interval);
+                output.textContent += "\n"; // Add a newline after the message
+                if (callback) callback();
+            }
+        }, 50); // Adjust typing speed here
+    }
 }
 
 // Start game when page loads
