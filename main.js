@@ -167,14 +167,68 @@ function updateReputation(currentWaterType) {
 async function showReputationStatus() {
     if (gameState.day >= 2) { // Only show from day 2 onwards
         if (gameState.consecutiveFilteredDays >= 5) {
-            await typewriterText(`🌟 Quality Reputation: ${gameState.reputationBonus}% sales boost from ${gameState.consecutiveFilteredDays} days of filtered water!`, 35);
+            showReputationNotification(
+                '🌟', 
+                'Quality Reputation Boost!', 
+                `+${gameState.reputationBonus}% sales from ${gameState.consecutiveFilteredDays} days of filtered water`,
+                'reputation-positive'
+            );
         } else if (gameState.consecutiveFilteredDays >= 3) {
             const daysLeft = 5 - gameState.consecutiveFilteredDays;
-            await typewriterText(`📈 Building reputation... ${daysLeft} more days of filtered water for sales boost!`, 35);
+            showReputationNotification(
+                '📈', 
+                'Building Reputation...', 
+                `${daysLeft} more filtered water days for sales boost`,
+                'reputation-building'
+            );
         } else if (gameState.reputationBonus > 0 && gameState.consecutiveRiverDays >= 1) {
-            await typewriterText(`📉 Reputation declining... Lost ${gameState.consecutiveRiverDays * 3}% from using river water (${gameState.reputationBonus}% remaining)`, 35);
+            showReputationNotification(
+                '📉', 
+                'Reputation Declining', 
+                `Lost ${gameState.consecutiveRiverDays * 3}% from river water (${gameState.reputationBonus}% remaining)`,
+                'reputation-negative'
+            );
         }
     }
+}
+
+function showReputationNotification(icon, title, message, type) {
+    const container = document.getElementById('achievement-notifications') || createNotificationContainer();
+    
+    const notification = document.createElement('div');
+    notification.className = `achievement-notification reputation-notification ${type}`;
+    notification.innerHTML = `
+        <div class="achievement-icon">${icon}</div>
+        <div class="achievement-content">
+            <div class="achievement-title">${title}</div>
+            <div class="achievement-desc">${message}</div>
+        </div>
+    `;
+
+    container.appendChild(notification);
+
+    // Trigger slide-in animation
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+
+    // Auto remove after 4 seconds (shorter than achievements)
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 4000);
+}
+
+function createNotificationContainer() {
+    const container = document.createElement('div');
+    container.id = 'achievement-notifications';
+    container.className = 'achievement-notifications';
+    document.body.appendChild(container);
+    return container;
 }
 
 function toggleAnimationMode() {
@@ -330,9 +384,7 @@ async function processWaterChoice(input) {
         gameState.inventory.riverWaterBottles += gameState.bottlesBought;
     }
     
-    // Show reputation status if applicable
-    await showReputationStatus();
-    await typewriterText(`Money left: ₹${gameState.money.toFixed(2)}`, 40);
+    // Show reputation status if applicable\n    showReputationStatus();\n    await typewriterText(`Money left: ₹${gameState.money.toFixed(2)}`, 40);
     
     // Check big spender achievement
     if (window.achievementManager) {
@@ -490,15 +542,6 @@ async function showDayResults(bottlesSold, revenue, profit) {
     await sleep(1000);
     await typewriterText(`Money in pocket: ₹${gameState.money.toFixed(2)}`, 40);
     await typewriterText(`Total profit so far: ₹${gameState.totalProfit.toFixed(2)}`, 40);
-    
-    // Show reputation status if relevant
-    if (gameState.reputationBonus > 0) {
-        await typewriterText(`🌟 Quality reputation bonus: +${gameState.reputationBonus}% sales`, 35);
-    }
-    if (gameState.consecutiveFilteredDays >= 3 && gameState.consecutiveFilteredDays < 5) {
-        const daysLeft = 5 - gameState.consecutiveFilteredDays;
-        await typewriterText(`📈 ${daysLeft} more filtered water days for reputation boost!`, 35);
-    }
     
     const remainingBottles = gameState.inventory.riverWaterBottles + gameState.inventory.filteredWaterBottles;
     if (remainingBottles > 0) {
