@@ -694,40 +694,51 @@ function initGame() {
             skipCurrentTyping();
         }
     });
-    // Spacebar to skip typing animation
+    // Konami code setup
+    const konamiSequence = ['arrowup','arrowup','arrowdown','arrowdown','arrowleft','arrowright','arrowleft','arrowright','b','a'];
+    let konamiIndex = 0;
+    
+    // Combined keydown listener for both spacebar skip and Konami code
     document.addEventListener('keydown', (e) => {
-        if (isTyping && e.code === 'Space' && e.target !== userInput) {
+        // Don't trigger Konami code while user is typing into input/textarea
+        const targetTag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : null;
+        const isTypingInInput = (targetTag === 'input' || targetTag === 'textarea');
+        
+        // Handle spacebar skip (only when not typing in input)
+        if (isTyping && e.code === 'Space' && !isTypingInInput) {
             e.preventDefault(); // Prevent page scroll
             skipCurrentTyping();
+            return; // Don't process Konami code for spacebar
+        }
+        
+        // Handle Konami code (only when not typing in input)
+        if (!isTypingInInput) {
+            const key = e.key.toLowerCase();
+            console.log(`Konami debug: key="${key}", index=${konamiIndex}, expected="${konamiSequence[konamiIndex]}"`);
+            
+            if (key === konamiSequence[konamiIndex]) {
+                konamiIndex++;
+                console.log(`Konami progress: ${konamiIndex}/${konamiSequence.length}`);
+                if (konamiIndex === konamiSequence.length) {
+                    // Full sequence entered — redirect to the requested link
+                    console.log('🎉 Konami code entered — redirecting...');
+                    window.location.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+                }
+            }
+            else {
+                // If the current key matches the first sequence key, start at 1, otherwise reset
+                konamiIndex = (key === konamiSequence[0]) ? 1 : 0;
+                if (konamiIndex > 0) {
+                    console.log(`Konami reset but restarted: key="${key}" matches first key`);
+                }
+            }
         }
     });
+    
     // Also allow left-click to skip (optional)
     document.addEventListener('click', (e) => {
         if (isTyping && e.target !== userInput && e.target !== submitButton && !animationToggle.contains(e.target)) {
             skipCurrentTyping();
-        }
-    });
-    // Konami code listener: Up Up Down Down Left Right Left Right B A
-    // Ignored when typing into input fields to avoid accidental triggers
-    const konamiSequence = ['arrowup','arrowup','arrowdown','arrowdown','arrowleft','arrowright','arrowleft','arrowright','b','a'];
-    let konamiIndex = 0;
-    document.addEventListener('keydown', (e) => {
-        // Don't trigger while user is typing into input/textarea
-        const targetTag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : null;
-        if (targetTag === 'input' || targetTag === 'textarea') return;
-
-        const key = e.key.toLowerCase();
-        if (key === konamiSequence[konamiIndex]) {
-            konamiIndex++;
-            if (konamiIndex === konamiSequence.length) {
-                // Full sequence entered — redirect to the requested link
-                console.log('Konami code entered — redirecting...');
-                window.location.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-            }
-        }
-        else {
-            // If the current key matches the first sequence key, start at 1, otherwise reset
-            konamiIndex = (key === konamiSequence[0]) ? 1 : 0;
         }
     });
     // Start the game
