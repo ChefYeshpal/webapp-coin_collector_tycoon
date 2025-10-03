@@ -721,7 +721,7 @@ function initGame() {
                 console.log(`Konami progress: ${konamiIndex}/${konamiSequence.length}`);
                 if (konamiIndex === konamiSequence.length) {
                     // Full sequence entered — open link in new tab
-                    console.log('🎉 Konami code entered — opening in new tab...');
+                    console.log('Konami code entered - opening in new tab...');
                     window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
                 }
             }
