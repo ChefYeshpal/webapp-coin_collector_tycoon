@@ -230,42 +230,6 @@ body {
   line-height: 1.4;
 }
 
-/* Reputation notification styles */
-.reputation-notification {
-  border-left: 4px solid #666;
-}
-
-.reputation-notification.reputation-positive {
-  border-left-color: #4CAF50;
-  background-color: rgba(76, 175, 80, 0.1);
-}
-
-.reputation-notification.reputation-building {
-  border-left-color: #FF9800;
-  background-color: rgba(255, 152, 0, 0.1);
-}
-
-.reputation-notification.reputation-negative {
-  border-left-color: #F44336;
-  background-color: rgba(244, 67, 54, 0.1);
-}
-
-.reputation-notification .achievement-title {
-  color: #ccc;
-}
-
-.reputation-notification.reputation-positive .achievement-title {
-  color: #81C784;
-}
-
-.reputation-notification.reputation-building .achievement-title {
-  color: #FFB74D;
-}
-
-.reputation-notification.reputation-negative .achievement-title {
-  color: #EF5350;
-}
-
 /* Mobile responsiveness */
 @media (max-width: 600px) {
   .container {

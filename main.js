@@ -170,65 +170,36 @@ async function showReputationStatus() {
             showReputationNotification(
                 '🌟', 
                 'Quality Reputation Boost!', 
-                `+${gameState.reputationBonus}% sales from ${gameState.consecutiveFilteredDays} days of filtered water`,
-                'reputation-positive'
+                `+${gameState.reputationBonus}% sales from ${gameState.consecutiveFilteredDays} days of filtered water`
             );
         } else if (gameState.consecutiveFilteredDays >= 3) {
             const daysLeft = 5 - gameState.consecutiveFilteredDays;
             showReputationNotification(
                 '📈', 
                 'Building Reputation...', 
-                `${daysLeft} more filtered water days for sales boost`,
-                'reputation-building'
+                `${daysLeft} more filtered water days for sales boost`
             );
         } else if (gameState.reputationBonus > 0 && gameState.consecutiveRiverDays >= 1) {
             showReputationNotification(
                 '📉', 
                 'Reputation Declining', 
-                `Lost ${gameState.consecutiveRiverDays * 3}% from river water (${gameState.reputationBonus}% remaining)`,
-                'reputation-negative'
+                `Lost ${gameState.consecutiveRiverDays * 3}% from river water (${gameState.reputationBonus}% remaining)`
             );
         }
     }
 }
 
-function showReputationNotification(icon, title, message, type) {
-    const container = document.getElementById('achievement-notifications') || createNotificationContainer();
-    
-    const notification = document.createElement('div');
-    notification.className = `achievement-notification reputation-notification ${type}`;
-    notification.innerHTML = `
-        <div class="achievement-icon">${icon}</div>
-        <div class="achievement-content">
-            <div class="achievement-title">${title}</div>
-            <div class="achievement-desc">${message}</div>
-        </div>
-    `;
-
-    container.appendChild(notification);
-
-    // Trigger slide-in animation
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 100);
-
-    // Auto remove after 4 seconds (shorter than achievements)
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }, 4000);
-}
-
-function createNotificationContainer() {
-    const container = document.createElement('div');
-    container.id = 'achievement-notifications';
-    container.className = 'achievement-notifications';
-    document.body.appendChild(container);
-    return container;
+function showReputationNotification(icon, title, message) {
+    // Use the existing achievement notification system
+    if (window.achievementManager) {
+        const fakeAchievement = {
+            icon: icon,
+            name: title,
+            description: message,
+            customTitle: 'Reputation Update'
+        };
+        window.achievementManager.showNotification(fakeAchievement);
+    }
 }
 
 function toggleAnimationMode() {
@@ -742,3 +713,149 @@ function initGame() {
 
 // Start game when page loads
 window.addEventListener('DOMContentLoaded', initGame);
+
+// Console Testing Functions for Reputation System
+window.testReputation = {
+    // Show current reputation status
+    status: () => {
+        console.log('\n=== REPUTATION STATUS ===');
+        console.log(`Current Day: ${gameState.day}`);
+        console.log(`Consecutive Filtered Days: ${gameState.consecutiveFilteredDays}`);
+        console.log(`Consecutive River Days: ${gameState.consecutiveRiverDays}`);
+        console.log(`Reputation Bonus: ${gameState.reputationBonus}%`);
+        console.log(`Last Water Type: ${gameState.lastWaterType || 'none'}`);
+        console.log(`River Water Usage Count: ${gameState.riverWaterUsage}`);
+    },
+
+    // Force trigger reputation notifications
+    triggerNotifications: {
+        positive: () => {
+            gameState.consecutiveFilteredDays = 7;
+            gameState.reputationBonus = 16;
+            showReputationNotification('🌟', 'Quality Reputation Boost!', '+16% sales from 7 days of filtered water');
+            console.log('🌟 Triggered positive reputation notification');
+        },
+        
+        building: () => {
+            gameState.consecutiveFilteredDays = 3;
+            showReputationNotification('📈', 'Building Reputation...', '2 more filtered water days for sales boost');
+            console.log('📈 Triggered building reputation notification');
+        },
+        
+        declining: () => {
+            gameState.consecutiveRiverDays = 2;
+            gameState.reputationBonus = 14;
+            showReputationNotification('📉', 'Reputation Declining', 'Lost 6% from river water (14% remaining)');
+            console.log('📉 Triggered declining reputation notification');
+        },
+
+        all: () => {
+            console.log('🧪 Testing all reputation notifications...');
+            window.testReputation.triggerNotifications.positive();
+            setTimeout(() => window.testReputation.triggerNotifications.building(), 1000);
+            setTimeout(() => window.testReputation.triggerNotifications.declining(), 2000);
+        }
+    },
+
+    // Set reputation state for testing
+    setState: {
+        // Set to almost ready for reputation bonus
+        almostReady: () => {
+            gameState.consecutiveFilteredDays = 4;
+            gameState.consecutiveRiverDays = 0;
+            gameState.reputationBonus = 0;
+            gameState.lastWaterType = 'filtered';
+            console.log('🔧 Set state: 1 day away from reputation bonus');
+            window.testReputation.status();
+        },
+
+        // Set to high reputation
+        highReputation: () => {
+            gameState.consecutiveFilteredDays = 15;
+            gameState.consecutiveRiverDays = 0;
+            gameState.reputationBonus = 22;
+            gameState.lastWaterType = 'filtered';
+            console.log('🔧 Set state: High reputation (22% bonus)');
+            window.testReputation.status();
+        },
+
+        // Set to declining reputation
+        declining: () => {
+            gameState.consecutiveFilteredDays = 0;
+            gameState.consecutiveRiverDays = 3;
+            gameState.reputationBonus = 8;
+            gameState.lastWaterType = 'river';
+            console.log('🔧 Set state: Declining reputation');
+            window.testReputation.status();
+        },
+
+        // Reset reputation
+        reset: () => {
+            gameState.consecutiveFilteredDays = 0;
+            gameState.consecutiveRiverDays = 0;
+            gameState.reputationBonus = 0;
+            gameState.lastWaterType = '';
+            console.log('🔧 Reset reputation state');
+            window.testReputation.status();
+        }
+    },
+
+    // Test the reputation system with different water choices
+    testWaterChoice: {
+        filtered: () => {
+            console.log('🧪 Testing filtered water choice...');
+            updateReputation('filtered');
+            showReputationStatus();
+            window.testReputation.status();
+        },
+
+        river: () => {
+            console.log('🧪 Testing river water choice...');
+            updateReputation('river');
+            showReputationStatus();
+            window.testReputation.status();
+        },
+
+        // Simulate 5 days of filtered water to trigger reputation bonus
+        fiveDaysFiltered: () => {
+            console.log('🧪 Simulating 5 days of filtered water...');
+            for (let i = 1; i <= 5; i++) {
+                updateReputation('filtered');
+                console.log(`Day ${i}: Consecutive filtered days: ${gameState.consecutiveFilteredDays}, Bonus: ${gameState.reputationBonus}%`);
+            }
+            showReputationStatus();
+        },
+
+        // Simulate reputation decline
+        reputationDecline: () => {
+            console.log('🧪 Simulating reputation decline...');
+            // First build up reputation
+            window.testReputation.setState.highReputation();
+            // Then use river water for 3 days
+            for (let i = 1; i <= 3; i++) {
+                updateReputation('river');
+                console.log(`River day ${i}: Consecutive river days: ${gameState.consecutiveRiverDays}, Bonus: ${gameState.reputationBonus}%`);
+            }
+            showReputationStatus();
+        }
+    },
+
+    // Show help
+    help: () => {
+        console.log('\n=== REPUTATION TESTING HELP ===');
+        console.log('window.testReputation.status() - Show current reputation status');
+        console.log('window.testReputation.triggerNotifications.positive() - Show positive notification');
+        console.log('window.testReputation.triggerNotifications.building() - Show building notification');
+        console.log('window.testReputation.triggerNotifications.declining() - Show declining notification');
+        console.log('window.testReputation.triggerNotifications.all() - Show all notifications');
+        console.log('window.testReputation.setState.almostReady() - Set to 1 day from bonus');
+        console.log('window.testReputation.setState.highReputation() - Set high reputation');
+        console.log('window.testReputation.setState.declining() - Set declining reputation');
+        console.log('window.testReputation.setState.reset() - Reset reputation');
+        console.log('window.testReputation.testWaterChoice.filtered() - Test filtered water');
+        console.log('window.testReputation.testWaterChoice.river() - Test river water');
+        console.log('window.testReputation.testWaterChoice.fiveDaysFiltered() - Simulate 5 day buildup');
+        console.log('window.testReputation.testWaterChoice.reputationDecline() - Simulate decline');
+        console.log('window.testReputation.help() - Show this help');
+    }
+};

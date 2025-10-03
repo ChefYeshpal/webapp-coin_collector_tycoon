@@ -378,10 +378,14 @@ class AchievementManager {
         
         const notification = document.createElement('div');
         notification.className = 'achievement-notification';
+        
+        // Use custom title if provided (for reputation notifications), otherwise default achievement title
+        const title = achievement.customTitle || 'Achievement Unlocked';
+        
         notification.innerHTML = `
             <div class="achievement-icon">${achievement.icon}</div>
             <div class="achievement-content">
-                <div class="achievement-title">Achievement Unlocked</div>
+                <div class="achievement-title">${title}</div>
                 <div class="achievement-name">${achievement.name}</div>
                 <div class="achievement-desc">${achievement.description}</div>
             </div>
