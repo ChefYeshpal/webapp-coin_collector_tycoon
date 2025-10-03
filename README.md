@@ -56,3 +56,6 @@ Also, this is kinda based off of a text-based game which I played when I was you
         - Now it pops up from under, instead of appearing like houdini
 - 3 Oct 2025
     - Trying to add easter eggs...
+    - Added a reputation system
+        - Sell river water your rep goes down, so does your sales
+        - Sell filter water, your rep goes up, and so does your sales
