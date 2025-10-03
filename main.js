@@ -583,7 +583,7 @@ function initGame() {
         instantMode = true;
         const toggleIcon = animationToggle.querySelector('.toggle-icon');
         const toggleText = animationToggle.querySelector('.toggle-text');
-        toggleIcon.textContent = '📝';
+        toggleIcon.textContent = '⏱️';
         toggleText.textContent = 'Step Mode';
         animationToggle.title = 'Switch to typewriter animation';
     } else {
