@@ -209,7 +209,7 @@ function toggleAnimationMode() {
     const toggleText = toggleButton.querySelector('.toggle-text');
     
     if (instantMode) {
-        toggleIcon.textContent = '📝';
+        toggleIcon.textContent = '⏱️';
         toggleText.textContent = 'Step Mode';
         toggleButton.title = 'Switch to typewriter animation';
     } else {
