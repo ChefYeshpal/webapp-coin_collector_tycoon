@@ -54,6 +54,9 @@
         if (!isNaN(val) && window.gameState) {
             window.gameState.money = val;
             updateStats();
+            if (typeof window.showInventoryStatus === 'function') {
+                window.showInventoryStatus();
+            }
         }
     };
     panel.querySelector('#devtools-set-day').onclick = function() {
@@ -61,6 +64,9 @@
         if (!isNaN(val) && window.gameState) {
             window.gameState.day = val;
             updateStats();
+            if (typeof window.showInventoryStatus === 'function') {
+                window.showInventoryStatus();
+            }
         }
     };
     panel.querySelector('#devtools-set-rep').onclick = function() {
@@ -68,6 +74,9 @@
         if (!isNaN(val) && window.gameState) {
             window.gameState.reputationBonus = val;
             updateStats();
+            if (typeof window.showInventoryStatus === 'function') {
+                window.showInventoryStatus();
+            }
         }
     };
     panel.querySelector('#devtools-close').onclick = function() {
