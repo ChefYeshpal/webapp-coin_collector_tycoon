@@ -64,3 +64,5 @@ Also, this is kinda based off of a text-based game which I played when I was you
         - profit 50k to get one
         - Lose 50k to get the other
         - Both of these should be a little difficult to get, I dont think anybody'll even use this game for that long...
+- 4 Oct 2025
+    -
